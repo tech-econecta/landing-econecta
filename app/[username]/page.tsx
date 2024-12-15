@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import fonts from "next/font/google"
 import Buttons from "../components/perfil/buttons";
 import AppCarousel from "../components/perfil/slides";
 import Captador from "../components/perfil/captador";
@@ -141,14 +142,19 @@ export default async function ProfilePage(props: ProfileProps) {
       ? { backgroundImage: `url(${background_path})`, backgroundSize: "cover", backgroundPosition: "center" }
       : { backgroundColor: background_color || "#ffffff" };
 
+    const familyFont = customFontUrl ? {familyFont:new URL(customFontUrl).searchParams.get('family')} : {}
+    console.log(familyFont , customFontUrl)
+
     return (
-      <div className="min-h-screen flex flex-col items-center pt-4 pb-4" style={backgroundStyle}>
+      <div className="min-h-screen flex flex-col items-center pt-4 pb-4" style={{...backgroundStyle, ...familyFont}}>
         {/* Inserta la fuente personalizada en el <head> */}
+
         {customFontUrl && (
-          <Head>
-            <link href={customFontUrl} rel="stylesheet" />
-          </Head>
+        <Head>
+          <link href={customFontUrl} rel="stylesheet" />
+        </Head>
         )}
+
         {/* Logo de marca */}
         {brandLogo && (
           <div className="mb-4">
@@ -158,15 +164,15 @@ export default async function ProfilePage(props: ProfileProps) {
 
         {imagen && (
           <div className="mb-4">
-          <img
-            src={imagen}
-            alt="User"
-            className="rounded-full"
-            style={{ width: `${image_size}px`, height: `${image_size}px`, objectFit: "cover" }}
-          />
-        </div>
+            <img
+              src={imagen}
+              alt="User"
+              className="rounded-full"
+              style={{ width: `${image_size}px`, height: `${image_size}px`, objectFit: "cover" }}
+            />
+          </div>
         )}
-        
+
 
         {/* Título y subtítulo */}
         <h1 className="text-center font-bold" style={{ fontSize: `${title_size}px`, color: text_color }}>

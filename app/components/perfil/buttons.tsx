@@ -50,10 +50,11 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
               justifyContent: "center", // Centra verticalmente
               alignItems: "center", // Centra horizontalmente
               width: `${button.width ?? 100}px`,
-              height: `${button.height ?? 100}px`,
+              //height: `${button.height ?? 100}px`,
               cursor: "pointer",
               padding: "10px",
               overflow: "hidden",
+              margin: "auto"
             }}
           >
             {button.path_icon && (

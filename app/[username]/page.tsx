@@ -138,7 +138,7 @@ export default async function ProfilePage(props: ProfileProps) {
 
     // Determina el fondo (imagen o color)
     const backgroundStyle = brandLogo
-      ? { backgroundImage: `url(${background_path || brandLogoPath})`, backgroundSize: "cover", backgroundPosition: "center" }
+      ? { backgroundImage: `url(${background_path})`, backgroundSize: "cover", backgroundPosition: "center" }
       : { backgroundColor: background_color || "#ffffff" };
 
     return (
@@ -156,8 +156,8 @@ export default async function ProfilePage(props: ProfileProps) {
           </div>
         )}
 
-        {/* Imagen del usuario */}
-        <div className="mb-4">
+        {imagen && (
+          <div className="mb-4">
           <img
             src={imagen}
             alt="User"
@@ -165,12 +165,14 @@ export default async function ProfilePage(props: ProfileProps) {
             style={{ width: `${image_size}px`, height: `${image_size}px`, objectFit: "cover" }}
           />
         </div>
+        )}
+        
 
         {/* Título y subtítulo */}
         <h1 className="text-center font-bold" style={{ fontSize: `${title_size}px`, color: text_color }}>
           {title}
         </h1>
-        <h2 className="text-center" style={{ fontSize: `${subtitle_size}px`, color: text_color }}>
+        <h2 className="text-center font-semibold" style={{ fontSize: `${subtitle_size}px`, color: text_color }}>
           {subtitle}
         </h2>
 

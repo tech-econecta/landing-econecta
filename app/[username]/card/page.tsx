@@ -33,6 +33,10 @@ export async function generateMetadata(
         images: perfil.imagen || defaultMetaData.openGraph?.images,
         type: "website",
       },
+      icons: {
+        icon: perfil.imagen || defaultMetaData.icons?.icon,
+        apple: perfil.imagen || defaultMetaData.icons?.icon,
+      },
     };
   } catch (error) {
     console.error("Error generating metadata:", error);
@@ -73,20 +77,11 @@ export default async function CardPage(props: CardProps) {
     const {
       textColor = "#000000",
       cardColor = "#ffffff",
-      Button1Color = "#000000",
+      Button1Color = "#a21616",
       Button1TextColor = "#ffffff",
-      Button2Color = "#D10B0B",
+      Button2Color = "#4285F4",
       Button2TextColor = "#ffffff",
     } = card;
-
-    console.log({
-      textColor,
-      cardColor,
-      Button1Color,
-      Button1TextColor,
-      Button2Color,
-      Button2TextColor,
-    });
 
     const familyFont: React.CSSProperties = customFontUrl
       ? { fontFamily: new URL(customFontUrl).searchParams.get("family") as string }

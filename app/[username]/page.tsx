@@ -101,6 +101,10 @@ export async function generateMetadata(
         images: perfil.imagen || defaultMetaData.openGraph?.images,
         type: "website",
       },
+      icons: {
+        icon: perfil.imagen || defaultMetaData.icons?.icon,
+        apple: perfil.imagen || defaultMetaData.icons?.icon,
+      },
     };
   } catch (error) {
     console.error("Error generating metadata:", error);
@@ -196,13 +200,24 @@ export default async function ProfilePage(props: ProfileProps) {
         {/* Título y subtítulo */}
         <h1
           className="text-center"
-          style={{ fontSize: `${title_size}px`, color: text_color, fontWeight: "bold", ...familyFont }}
+          style={{
+            /*       fontSize: `${title_size}px`, */
+            fontSize: "2em",
+            color: text_color,
+            fontWeight: "bold",
+            marginBottom: "12px",
+            ...(Object.keys(familyFont).length ? familyFont : { fontFamily: "Poppins" }),
+          }}
         >
           {title}
         </h1>
         <h2
           className="text-center font-semibold"
-          style={{ fontSize: `${subtitle_size}px`, color: text_color }}
+          style={{
+            /* fontSize: `${subtitle_size}px`, */ fontSize: "1.5em",
+            color: text_color,
+            ...(Object.keys(familyFont).length ? familyFont : { fontFamily: "Poppins" }),
+          }}
         >
           {subtitle}
         </h2>

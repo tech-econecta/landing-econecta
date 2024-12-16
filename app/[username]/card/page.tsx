@@ -77,11 +77,11 @@ export default async function CardPage(props: CardProps) {
     const {
       textColor = "#000000",
       cardColor = "#ffffff",
-      Button1Color = "#a21616",
+      Button1Color = "#000000",
       Button1TextColor = "#ffffff",
-      Button2Color = "#4285F4",
+      Button2Color = "#DE1E25",
       Button2TextColor = "#ffffff",
-    } = card;
+    } = card || {};
 
     const familyFont: React.CSSProperties = customFontUrl
       ? { fontFamily: new URL(customFontUrl).searchParams.get("family") as string }

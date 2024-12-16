@@ -98,7 +98,7 @@ export async function generateMetadata(
     return {
       title: `${perfil.title} | Perfil`,
       openGraph: {
-        images: perfil.imagen || defaultMetaData.openGraph?.images,
+        images: perfil.brandLogoPath || defaultMetaData.openGraph?.images,
         type: "website",
       },
       icons: {
@@ -177,7 +177,9 @@ export default async function ProfilePage(props: ProfileProps) {
         className="min-h-screen flex flex-col items-center pt-4 pb-4"
         style={{ ...backgroundStyle, ...familyFont }}
       >
-        <style>{`@import url('${customFontUrl}')`}</style>
+      {customFontUrl && (
+        <style>{`@import url('${customFontUrl}')`}</style> 
+      )}
 
         {/* Logo de marca */}
         {brandLogo && (

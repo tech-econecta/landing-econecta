@@ -76,7 +76,7 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
                 marginTop: "12px", // Espaciado entre la imagen y el texto
                 textAlign: "center",
                 wordBreak: "break-word",
-                whiteSpace: "nowrap",
+                whiteSpace: "normal",
                 fontFamily: "Poppins",
               }}
             >

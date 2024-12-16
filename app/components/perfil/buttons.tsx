@@ -24,7 +24,7 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(2, 1fr)", // Siempre dos columnas
-        gridGap: "20px", // Espaciado entre los botones
+        gridGap: "35px", // Espaciado entre los botones
         paddingTop: "10px",
         width: "100%", // Abarca el 100% del ancho de la pantalla
       }}
@@ -37,7 +37,7 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
           rel="noopener noreferrer"
           style={{
             textDecoration: "none",
-            overflow: 'clip'
+            overflow: "clip",
           }}
         >
           <div
@@ -49,12 +49,10 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
               flexDirection: "column", // Coloca la imagen y el texto en columna
               justifyContent: "center", // Centra verticalmente
               alignItems: "center", // Centra horizontalmente
-              width: `${button.width ?? 100}px`,
-              //height: `${button.height ?? 100}px`,
               cursor: "pointer",
               padding: "10px",
-              overflow: "hidden",
-              margin: "auto"
+              margin: "auto",
+              fontFamily: "Poppins",
             }}
           >
             {button.path_icon && (
@@ -66,16 +64,19 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
                   maxHeight: "80%", // Escala el ícono al 70% del alto del botón
                   borderRadius: `${button.border_radius ?? 10}px`,
                 }}
+                className="w-[100px]"
               />
             )}
             <p
               style={{
                 color: button.label_color,
                 fontSize: "16px",
-                fontWeight: "bold",
-                marginTop: "10px", // Espaciado entre la imagen y el texto
+                fontWeight: "500",
+                marginTop: "12px", // Espaciado entre la imagen y el texto
                 textAlign: "center",
                 wordBreak: "break-word",
+                whiteSpace: "nowrap",
+                fontFamily: "Poppins",
               }}
             >
               {button.label}

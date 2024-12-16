@@ -1,34 +1,45 @@
 import React from "react";
-import { Metadata } from "next";
+import { Metadata, ResolvingMetadata } from "next";
 import { Empty } from "antd";
-
-type CardData = {
-  brandLogo?: boolean;
-  brandLogoPath?: string;
-  imagen?: string;
-  title: string;
-  subtitle?: string;
-  card?: {
-    Text_color?: string;
-    Card_color?: string;
-    Button1_color?: string;
-    Button1Text_color?: string;
-    Button2_color?: string;
-    Button2Text_color?: string;
-  };
-};
+import { Perfil, UserData } from "../page";
 
 type CardProps = {
   params: Promise<{ username: string }>;
 };
 
-export async function generateMetadata(props: CardProps): Promise<Metadata> {
+export async function generateMetadata(
+  props: CardProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
   const params = await props.params;
   const { username } = params;
+  const defaultMetaData = await parent;
 
-  return {
-    title: `${username} | Tarjeta Digital`,
-  };
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`);
+
+    if (!response.ok) {
+      console.log(`Error fetching user data for username: ${username}`);
+      return {
+        title: "User Not Found",
+      };
+    }
+
+    const { perfil }: UserData = await response.json();
+
+    return {
+      title: `${username} | Tarjeta Digital`,
+      openGraph: {
+        images: perfil.imagen || defaultMetaData.openGraph?.images,
+        type: "website",
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "Error",
+    };
+  }
 }
 
 export default async function CardPage(props: CardProps) {
@@ -45,7 +56,7 @@ export default async function CardPage(props: CardProps) {
       );
     }
 
-    const userData = await response.json();
+    const userData = (await response.json()) as { perfil: Perfil };
 
     // Extraemos los datos desde `userData.perfil`
     const perfil = userData.perfil || {};
@@ -55,25 +66,36 @@ export default async function CardPage(props: CardProps) {
       imagen,
       title,
       subtitle,
-      card = {}, // Accedemos a `card` dentro de `perfil`
+      card, // Accedemos a `card` dentro de `perfil`,
+      customFontUrl,
     } = perfil;
 
     const {
-      Text_color = "#000000",
-      Card_color = "#ffffff",
-      Button1_color = "#34A853",
-      Button1Text_color = "#ffffff",
-      Button2_color = "#4285F4",
-      Button2Text_color = "#ffffff",
+      textColor = "#000000",
+      cardColor = "#ffffff",
+      Button1Color = "#34A853",
+      Button1TextColor = "#ffffff",
+      Button2Color = "#4285F4",
+      Button2TextColor = "#ffffff",
     } = card;
+
+    console.log({
+      textColor,
+      cardColor,
+      Button1Color,
+      Button1TextColor,
+      Button2Color,
+      Button2TextColor,
+    });
+
+    const familyFont: React.CSSProperties = customFontUrl
+      ? { fontFamily: new URL(customFontUrl).searchParams.get("family") as string }
+      : {};
 
     return (
       <html lang="es">
-        <head>
-          <meta charSet="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Tarjeta de {title}</title>
-        </head>
+        <style>{`@import url('${customFontUrl}')`}</style>
+
         <body
           style={{
             margin: 0,
@@ -85,13 +107,14 @@ export default async function CardPage(props: CardProps) {
             height: "100vh",
             background: "linear-gradient(to bottom, #f7f0f7, #d5e1f7)",
             fontFamily: "Axiforma, sans-serif",
+            ...familyFont,
           }}
         >
           <div
             className="card-container"
             style={{
-              color: Text_color,
-              backgroundColor: Card_color,
+              color: textColor,
+              backgroundColor: cardColor,
               borderRadius: "15px",
               padding: "20px",
               width: "300px",
@@ -130,9 +153,20 @@ export default async function CardPage(props: CardProps) {
               />
             )}
 
-            <h1 style={{ fontWeight: "bold", fontSize: "24px", margin: "0 0 0px", color: Text_color }}>{title}</h1>
+            <h1
+              style={{ fontWeight: "bold", fontSize: "24px", margin: "0 0 0px", color: textColor }}
+            >
+              {title}
+            </h1>
             {subtitle && (
-              <h2 style={{ fontSize: "14px", fontWeight: "normal", color: Text_color, marginBottom: "20px" }}>
+              <h2
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "normal",
+                  color: textColor,
+                  marginBottom: "20px",
+                }}
+              >
                 {subtitle}
               </h2>
             )}
@@ -171,8 +205,8 @@ export default async function CardPage(props: CardProps) {
                 padding: "10px 20px",
                 fontSize: "16px",
                 fontWeight: "bold",
-                color: Button1Text_color,
-                backgroundColor: Button1_color,
+                color: Button1TextColor,
+                backgroundColor: Button1Color,
                 borderRadius: "5px",
                 textDecoration: "none",
                 textAlign: "center",
@@ -198,8 +232,8 @@ export default async function CardPage(props: CardProps) {
                 padding: "10px 20px",
                 fontSize: "16px",
                 fontWeight: "bold",
-                color: Button2Text_color,
-                backgroundColor: Button2_color,
+                color: Button2TextColor,
+                backgroundColor: Button2Color,
                 borderRadius: "5px",
                 textDecoration: "none",
                 textAlign: "center",

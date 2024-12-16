@@ -198,6 +198,7 @@ export default async function ProfilePage(props: ProfileProps) {
         )}
 
         {/* Título y subtítulo */}
+        
         <h1
           className="text-center"
           style={{

@@ -1,5 +1,5 @@
-import { Metadata } from "next";
-import fonts from "next/font/google"
+import { Metadata, ResolvingMetadata } from "next";
+import fonts from "next/font/google";
 import Buttons from "../components/perfil/buttons";
 import AppCarousel from "../components/perfil/slides";
 import Captador from "../components/perfil/captador";
@@ -38,7 +38,7 @@ type Slide = {
   video?: string;
 };
 
-type Perfil = {
+export type Perfil = {
   background_path: string;
   background_color: string;
   brandLogoPath: string;
@@ -54,9 +54,19 @@ type Perfil = {
   buttons: Button[];
   slide_activate: boolean;
   slides: Slide[];
+  card: {
+    subtitle: string;
+    title: string;
+    Button1TextColor: string;
+    Button2Color: string;
+    Button1Color: string;
+    cardColor: string;
+    Button2TextColor: string;
+    textColor: string;
+  };
 };
 
-type UserData = {
+export type UserData = {
   perfil: Perfil;
   captador?: Captador;
 };
@@ -65,9 +75,13 @@ type ProfileProps = {
   params: Promise<{ username: string }>;
 };
 
-export async function generateMetadata(props: ProfileProps): Promise<Metadata> {
+export async function generateMetadata(
+  props: ProfileProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
   const params = await props.params;
   const { username } = params;
+  const defaultMetaData = await parent;
 
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`);
@@ -75,19 +89,23 @@ export async function generateMetadata(props: ProfileProps): Promise<Metadata> {
     if (!response.ok) {
       console.log(`Error fetching user data for username: ${username}`);
       return {
-        title: "User Not Found"
+        title: "User Not Found",
       };
     }
 
     const { perfil }: UserData = await response.json();
 
     return {
-      title: `${perfil.title} | Perfil`
+      title: `${perfil.title} | Perfil`,
+      openGraph: {
+        images: perfil.imagen || defaultMetaData.openGraph?.images,
+        type: "website",
+      },
     };
   } catch (error) {
     console.error("Error generating metadata:", error);
     return {
-      title: "Error"
+      title: "Error",
     };
   }
 }
@@ -138,22 +156,24 @@ export default async function ProfilePage(props: ProfileProps) {
     } = perfil;
 
     // Determina el fondo (imagen o color)
-    const backgroundStyle = brandLogo
-      ? { backgroundImage: `url(${background_path})`, backgroundSize: "cover", backgroundPosition: "center" }
+    const backgroundStyle = background_path
+      ? {
+          backgroundImage: `url(${background_path})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }
       : { backgroundColor: background_color || "#ffffff" };
 
-    const familyFont = customFontUrl ? {familyFont:new URL(customFontUrl).searchParams.get('family')} : {}
-    console.log(familyFont , customFontUrl)
+    const familyFont: React.CSSProperties = customFontUrl
+      ? { fontFamily: new URL(customFontUrl).searchParams.get("family") as string }
+      : {};
 
     return (
-      <div className="min-h-screen flex flex-col items-center pt-4 pb-4" style={{...backgroundStyle, ...familyFont}}>
-        {/* Inserta la fuente personalizada en el <head> */}
-
-        {customFontUrl && (
-        <Head>
-          <link href={customFontUrl} rel="stylesheet" />
-        </Head>
-        )}
+      <div
+        className="min-h-screen flex flex-col items-center pt-4 pb-4"
+        style={{ ...backgroundStyle, ...familyFont }}
+      >
+        <style>{`@import url('${customFontUrl}')`}</style>
 
         {/* Logo de marca */}
         {brandLogo && (
@@ -173,12 +193,17 @@ export default async function ProfilePage(props: ProfileProps) {
           </div>
         )}
 
-
         {/* Título y subtítulo */}
-        <h1 className="text-center font-bold" style={{ fontSize: `${title_size}px`, color: text_color }}>
+        <h1
+          className="text-center font-bold"
+          style={{ fontSize: `${title_size}px`, color: text_color }}
+        >
           {title}
         </h1>
-        <h2 className="text-center font-semibold" style={{ fontSize: `${subtitle_size}px`, color: text_color }}>
+        <h2
+          className="text-center font-semibold"
+          style={{ fontSize: `${subtitle_size}px`, color: text_color }}
+        >
           {subtitle}
         </h2>
 

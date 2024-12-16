@@ -73,9 +73,9 @@ export default async function CardPage(props: CardProps) {
     const {
       textColor = "#000000",
       cardColor = "#ffffff",
-      Button1Color = "#34A853",
+      Button1Color = "#000000",
       Button1TextColor = "#ffffff",
-      Button2Color = "#4285F4",
+      Button2Color = "#D10B0B",
       Button2TextColor = "#ffffff",
     } = card;
 

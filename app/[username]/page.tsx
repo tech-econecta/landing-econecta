@@ -183,7 +183,7 @@ export default async function ProfilePage(props: ProfileProps) {
         )}
 
         {imagen && (
-          <div className="mb-4">
+          <div className="mb-4 mt-4">
             <img
               src={imagen}
               alt="User"
@@ -195,8 +195,8 @@ export default async function ProfilePage(props: ProfileProps) {
 
         {/* Título y subtítulo */}
         <h1
-          className="text-center font-bold"
-          style={{ fontSize: `${title_size}px`, color: text_color }}
+          className="text-center"
+          style={{ fontSize: `${title_size}px`, color: text_color, fontWeight: "bold", ...familyFont }}
         >
           {title}
         </h1>

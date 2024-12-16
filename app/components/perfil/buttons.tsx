@@ -23,7 +23,7 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
       className="buttons"
       style={{
         display: "grid",
-        padding: "20px",
+        padding: "25px",
         gridTemplateColumns: "repeat(2, 1fr)", // Siempre dos columnas
         gridGap: "35px", // Espaciado entre los botones
         paddingTop: "10px",

@@ -198,15 +198,15 @@ export default async function ProfilePage(props: ProfileProps) {
         )}
 
         {/* Título y subtítulo */}
-        
+
         <h1
           className="text-center"
           style={{
             /*       fontSize: `${title_size}px`, */
-            fontSize: "2em",
+            fontSize: "1.70em",
             color: text_color,
             fontWeight: "bold",
-            marginBottom: "12px",
+            marginBottom: "03px",
             ...(Object.keys(familyFont).length ? familyFont : { fontFamily: "Poppins" }),
           }}
         >
@@ -215,7 +215,7 @@ export default async function ProfilePage(props: ProfileProps) {
         <h2
           className="text-center font-semibold"
           style={{
-            /* fontSize: `${subtitle_size}px`, */ fontSize: "1.5em",
+            /* fontSize: `${subtitle_size}px`, */ fontSize: "1.25em",
             color: text_color,
             ...(Object.keys(familyFont).length ? familyFont : { fontFamily: "Poppins" }),
           }}

@@ -16,7 +16,9 @@ export async function generateMetadata(
   const defaultMetaData = await parent;
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
+    );
 
     if (!response.ok) {
       console.log(`Error fetching user data for username: ${username}`);
@@ -51,7 +53,9 @@ export default async function CardPage(props: CardProps) {
   const { username } = params;
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
+    );
     if (!response.ok) {
       return (
         <div className="flex items-center justify-center h-screen">
@@ -84,7 +88,11 @@ export default async function CardPage(props: CardProps) {
     } = card || {};
 
     const familyFont: React.CSSProperties = customFontUrl
-      ? { fontFamily: new URL(customFontUrl).searchParams.get("family") as string }
+      ? {
+          fontFamily: new URL(customFontUrl).searchParams.get(
+            "family"
+          ) as string,
+        }
       : {};
 
     return (
@@ -149,7 +157,12 @@ export default async function CardPage(props: CardProps) {
             )}
 
             <h1
-              style={{ fontWeight: "bold", fontSize: "24px", margin: "0 0 0px", color: textColor }}
+              style={{
+                fontWeight: "bold",
+                fontSize: "24px",
+                margin: "0 0 0px",
+                color: textColor,
+              }}
             >
               {title}
             </h1>
@@ -179,7 +192,11 @@ export default async function CardPage(props: CardProps) {
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://econecta.io/${username}`}
                 alt="Código QR"
-                style={{ width: "110px", height: "110px", borderRadius: "10px" }}
+                style={{
+                  width: "110px",
+                  height: "110px",
+                  borderRadius: "10px",
+                }}
               />
             </div>
           </div>
@@ -238,6 +255,10 @@ export default async function CardPage(props: CardProps) {
             >
               Ver Perfil
             </a>
+          </div>
+          {/* Ícono centrado debajo de los botones */}
+          <div className="flex justify-center mt-5">
+            <img src="/Iso3.png" alt="Icon" className="h-10 w-auto" />
           </div>
         </body>
       </html>

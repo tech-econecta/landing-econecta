@@ -235,6 +235,15 @@ export default async function ProfilePage(props: ProfileProps) {
         {/* Usa el componente Buttons */}
         <Buttons buttonsData={buttons} />
 
+        {/* Ícono centrado debajo de los botones */}
+        <div className="flex justify-center mt-4">
+          <img 
+            src="/Iso3.png" 
+            alt="Icon" 
+            className="h-10 w-auto"
+          />
+        </div>
+
         {/* Modal de captura */}
         {captador && captador?.visible && (
           <Captador

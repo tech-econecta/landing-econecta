@@ -51,7 +51,7 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
               justifyContent: "center", // Centra verticalmente
               alignItems: "center", // Centra horizontalmente
               cursor: "pointer",
-              padding: "10px",
+              padding: "5px",
               margin: "auto",
               fontFamily: "Poppins",
             }}

@@ -26,7 +26,7 @@ export async function GET(request: Request, props: { params: Promise<{ uid: stri
     // Redirigir directamente al perfil del usuario basado en el nombre de usuario
     const username = userData.user_name;
     if (username) {
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_API_URL}/${username}`, 307); // Redirección temporal
+      return NextResponse.redirect(`https://econecta.io/${username}`, 307); // Redirección temporal
     } else {
       return NextResponse.json({ error: "Username not found" }, { status: 404 });
     }

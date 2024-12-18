@@ -96,7 +96,7 @@ export default async function CardPage(props: CardProps) {
       : {};
 
     return (
-      <html lang="es">
+      <html lang="en">
         <style>{`@import url('${customFontUrl}')`}</style>
 
         <body
@@ -169,7 +169,7 @@ export default async function CardPage(props: CardProps) {
             {subtitle && (
               <h2
                 style={{
-                  fontSize: "14px",
+                  fontSize: "16px",
                   fontWeight: "normal",
                   color: textColor,
                   marginBottom: "20px",

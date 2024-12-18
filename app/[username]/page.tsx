@@ -183,13 +183,13 @@ export default async function ProfilePage(props: ProfileProps) {
 
         {/* Logo de marca */}
         {brandLogo && (
-          <div className="mb-4 p-4">
+          <div className="p-6">
             <img src={brandLogoPath} alt="Brand Logo" className="h-20 w-auto" />
           </div>
         )}
 
         {imagen && (
-          <div className="mb-4 mt-4">
+          <div className="p-2">
             <img
               src={imagen}
               alt="User"
@@ -202,13 +202,13 @@ export default async function ProfilePage(props: ProfileProps) {
         {/* Título y subtítulo */}
 
         <h1
-          className="text-center"
+          className="text-center text-clip pl-2 pr-2"
           style={{
             /*       fontSize: `${title_size}px`, */
             fontSize: "1.70em",
             color: text_color,
             fontWeight: "bold",
-            marginBottom: "03px",
+            marginBottom: "2px",
             ...(Object.keys(familyFont).length ? familyFont : { fontFamily: "Poppins" }),
           }}
         >

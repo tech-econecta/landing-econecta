@@ -2,6 +2,7 @@ import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
 import { Empty } from "antd";
 import { Perfil, UserData } from "../page";
+import { url } from "inspector";
 
 type CardProps = {
   params: Promise<{ username: string }>;
@@ -28,6 +29,7 @@ export async function generateMetadata(
     }
 
     const { perfil }: UserData = await response.json();
+    const favicon = perfil.imagen || defaultMetaData.icons?.icon;
 
     return {
       title: `${username} | Tarjeta Digital`,
@@ -36,7 +38,7 @@ export async function generateMetadata(
         type: "website",
       },
       icons: {
-        icon: perfil.imagen || defaultMetaData.icons?.icon,
+        icon: favicon,
         apple: perfil.imagen || defaultMetaData.icons?.icon,
       },
     };

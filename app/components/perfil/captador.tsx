@@ -84,7 +84,7 @@ const Captador: React.FC<CaptadorProps> = ({
           Enviar
         </Button>,
       ]}
-      bodyStyle={{ backgroundColor }}
+      //bodyStyle={{ backgroundColor }}
     >
       <Form form={form} layout="vertical">
         {campos.map((campo) => {

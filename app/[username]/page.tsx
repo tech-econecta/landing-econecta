@@ -1,10 +1,8 @@
 import { Metadata, ResolvingMetadata } from "next";
-import fonts from "next/font/google";
 import Buttons from "../components/perfil/buttons";
 import AppCarousel from "../components/perfil/slides";
 import Captador from "../components/perfil/captador";
 import { Empty } from "antd";
-import Head from "next/head";
 
 type Button = {
   label_color: string;

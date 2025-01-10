@@ -20,9 +20,12 @@ export async function POST(request: Request, props: { params: Promise<{ username
     const userDoc = snapshot.docs[0];
     const registrosRef = collection(userDoc.ref, "registros");
 
+    // Convertir body a un array de objetos con nombre del campo y contenido
+    const respuesta = Object.entries(body).map(([key, value]) => ({ campo: key, contenido: value }));
+
     // Utilizamos addDoc para agregar un nuevo documento
     await addDoc(registrosRef, {
-      ...body,
+      respuesta,
       date: new Date().toISOString(),
       ip: request.headers.get("x-forwarded-for") || "Unknown",
     });

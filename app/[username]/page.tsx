@@ -202,8 +202,8 @@ export default async function ProfilePage(props: ProfileProps) {
         <h1
           className="text-center text-clip pl-2 pr-2"
           style={{
-            /*       fontSize: `${title_size}px`, */
-            fontSize: "1.70em",
+            fontSize: `${title_size}px`,
+            // fontSize: "1.70em",
             color: text_color,
             fontWeight: "bold",
             marginBottom: "2px",
@@ -215,7 +215,8 @@ export default async function ProfilePage(props: ProfileProps) {
         <h2
           className="text-center font-semibold"
           style={{
-            /* fontSize: `${subtitle_size}px`, */ fontSize: "1.25em",
+            fontSize: `${subtitle_size}px`, 
+            // fontSize: "1.25em",
             color: text_color,
             ...(Object.keys(familyFont).length ? familyFont : { fontFamily: "Poppins" }),
           }}

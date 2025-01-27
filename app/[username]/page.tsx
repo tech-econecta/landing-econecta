@@ -182,7 +182,7 @@ export default async function ProfilePage(props: ProfileProps) {
         {/* Logo de marca */}
         {brandLogo && (
           <div className="p-3">
-            <img src={brandLogoPath} alt="Brand Logo" className="h-20 w-auto" />
+            <img src={brandLogoPath} alt="Brand Logo" className="h-24 w-auto" />
           </div>
         )}
 

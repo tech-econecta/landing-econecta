@@ -122,7 +122,6 @@ export default async function ProfilePage(props: ProfileProps) {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
     );
-    console.log({ response });
     if (!response.ok) {
       // console.log(`Error fetching user data for username: ${username}, Status: ${response.status}`);
       return (

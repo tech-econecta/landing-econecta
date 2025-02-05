@@ -11,14 +11,14 @@ export async function GET(request: Request, props: { params: Promise<{ username:
     }
 
     const { username } = params;
-    console.log("Received username in route.ts:", username);
+    // console.log("Received username in route.ts:", username);
 
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("user_name", "==", username));
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
-      console.log(`No user found for username: ${username}`);
+      // console.log(`No user found for username: ${username}`);
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
@@ -31,7 +31,7 @@ export async function GET(request: Request, props: { params: Promise<{ username:
       };
     });
 
-    console.log("User data retrieved from Firestore:", userData);
+    // console.log("User data retrieved from Firestore:", userData);
 
     return NextResponse.json(userData);
   } catch (error) {

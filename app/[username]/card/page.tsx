@@ -22,7 +22,7 @@ export async function generateMetadata(
     );
 
     if (!response.ok) {
-      console.log(`Error fetching user data for username: ${username}`);
+      // console.log(`Error fetching user data for username: ${username}`);
       return {
         title: "User Not Found",
       };

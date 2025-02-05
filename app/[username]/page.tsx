@@ -85,7 +85,7 @@ export async function generateMetadata(
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`);
 
     if (!response.ok) {
-      console.log(`Error fetching user data for username: ${username}`);
+      // console.log(`Error fetching user data for username: ${username}`);
       return {
         title: "User Not Found",
       };
@@ -119,7 +119,7 @@ export default async function ProfilePage(props: ProfileProps) {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`);
     if (!response.ok) {
-      console.log(`Error fetching user data for username: ${username}, Status: ${response.status}`);
+      // console.log(`Error fetching user data for username: ${username}, Status: ${response.status}`);
       return (
         <div className="flex items-center justify-center h-screen">
           <Empty description="User not found" />

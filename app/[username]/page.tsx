@@ -160,7 +160,7 @@ export default async function ProfilePage(props: ProfileProps) {
     // Determina el fondo (imagen o color)
     const backgroundStyle = background_path
       ? {
-          backgroundImage: `url(${background_path})`,
+          backgroundImage: `url('${background_path}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }

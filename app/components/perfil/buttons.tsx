@@ -36,6 +36,10 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
           href={button.url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => {
+            e.preventDefault();
+            window.open(button.url, "_blank");
+          }}
           style={{
             textDecoration: "none",
             overflow: "clip",

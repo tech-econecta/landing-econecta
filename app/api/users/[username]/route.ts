@@ -2,19 +2,27 @@ import { NextResponse } from "next/server";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 
-export async function GET(request: Request, props: { params: Promise<{ username: string }> }) {
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ username: string }> }
+) {
   const params = await props.params;
   try {
     if (!params || !params.username) {
       console.error("Route parameters are missing");
-      return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid parameters" },
+        { status: 400 }
+      );
     }
 
     const { username } = params;
     // console.log("Received username in route.ts:", username);
+    console.log({ username });
 
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("user_name", "==", username));
+    console.log({ q });
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
@@ -36,6 +44,9 @@ export async function GET(request: Request, props: { params: Promise<{ username:
     return NextResponse.json(userData);
   } catch (error) {
     console.error("Error fetching user data:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

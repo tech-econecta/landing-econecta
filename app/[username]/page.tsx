@@ -82,7 +82,9 @@ export async function generateMetadata(
   const defaultMetaData = await parent;
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
+    );
 
     if (!response.ok) {
       // console.log(`Error fetching user data for username: ${username}`);
@@ -117,7 +119,10 @@ export default async function ProfilePage(props: ProfileProps) {
   const { username } = params;
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
+    );
+    console.log({ response });
     if (!response.ok) {
       // console.log(`Error fetching user data for username: ${username}, Status: ${response.status}`);
       return (
@@ -167,7 +172,11 @@ export default async function ProfilePage(props: ProfileProps) {
       : { backgroundColor: background_color || "#ffffff" };
 
     const familyFont: React.CSSProperties = customFontUrl
-      ? { fontFamily: new URL(customFontUrl).searchParams.get("family") as string }
+      ? {
+          fontFamily: new URL(customFontUrl).searchParams.get(
+            "family"
+          ) as string,
+        }
       : {};
 
     return (
@@ -175,9 +184,7 @@ export default async function ProfilePage(props: ProfileProps) {
         className="min-h-screen flex flex-col items-center pt-4 pb-4"
         style={{ ...backgroundStyle, ...familyFont }}
       >
-      {customFontUrl && (
-        <style>{`@import url('${customFontUrl}')`}</style> 
-      )}
+        {customFontUrl && <style>{`@import url('${customFontUrl}')`}</style>}
 
         {/* Logo de marca */}
         {brandLogo && (
@@ -192,7 +199,11 @@ export default async function ProfilePage(props: ProfileProps) {
               src={imagen}
               alt="User"
               className="rounded-full"
-              style={{ width: `${image_size}px`, height: `${image_size}px`, objectFit: "cover" }}
+              style={{
+                width: `${image_size}px`,
+                height: `${image_size}px`,
+                objectFit: "cover",
+              }}
             />
           </div>
         )}
@@ -207,7 +218,9 @@ export default async function ProfilePage(props: ProfileProps) {
             color: text_color,
             fontWeight: "bold",
             marginBottom: "2px",
-            ...(Object.keys(familyFont).length ? familyFont : { fontFamily: "Poppins" }),
+            ...(Object.keys(familyFont).length
+              ? familyFont
+              : { fontFamily: "Poppins" }),
           }}
         >
           {title}
@@ -215,10 +228,12 @@ export default async function ProfilePage(props: ProfileProps) {
         <h2
           className="text-center font-semibold"
           style={{
-            fontSize: `${subtitle_size}px`, 
+            fontSize: `${subtitle_size}px`,
             // fontSize: "1.25em",
             color: text_color,
-            ...(Object.keys(familyFont).length ? familyFont : { fontFamily: "Poppins" }),
+            ...(Object.keys(familyFont).length
+              ? familyFont
+              : { fontFamily: "Poppins" }),
           }}
         >
           {subtitle}
@@ -236,11 +251,7 @@ export default async function ProfilePage(props: ProfileProps) {
 
         {/* Ícono centrado debajo de los botones */}
         <div className="flex justify-center mt-4">
-          <img 
-            src="/Iso3.png" 
-            alt="Icon" 
-            className="h-10 w-auto"
-          />
+          <img src="/Iso3.png" alt="Icon" className="h-10 w-auto" />
         </div>
 
         {/* Modal de captura */}
@@ -260,6 +271,8 @@ export default async function ProfilePage(props: ProfileProps) {
     );
   } catch (error) {
     console.error("Error rendering profile page:", error);
-    return <div className="text-center text-red-500">Error loading user data</div>;
+    return (
+      <div className="text-center text-red-500">Error loading user data</div>
+    );
   }
 }

@@ -18,7 +18,7 @@ export default function TermsPage() {
         <div className="prose prose-lg mx-auto">
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-              1. Recopilación y Uso de Datos
+              1. Recopilación y Uso de Datos.
             </h2>
             <p className="text-gray-600 mb-4">
               En [Nombre de la Empresa], recopilamos y procesamos información personal para proporcionar nuestros servicios de tarjetas NFC. Esta información incluye, pero no se limita a:

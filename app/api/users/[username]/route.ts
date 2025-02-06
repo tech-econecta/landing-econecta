@@ -18,11 +18,9 @@ export async function GET(
 
     const { username } = params;
     // console.log("Received username in route.ts:", username);
-    console.log({ username });
 
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("user_name", "==", username));
-    console.log({ q });
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {

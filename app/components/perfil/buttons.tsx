@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 // Define el tipo para cada botón

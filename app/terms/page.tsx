@@ -25,7 +25,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 text-gray-600">
               <li>Nombre completo</li>
-              <li>Información de contacto profesional</li>
+              <li>Información de contacto profesional.</li>
               <li>Enlaces a redes sociales</li>
               <li>Imagen de perfil</li>
               <li>Información empresarial</li>

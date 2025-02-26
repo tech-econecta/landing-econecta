@@ -21,8 +21,8 @@ export default function NewsletterEmail({ name }: NewsletterEmailProps) {
         <Container style={container}>
           <Img
             src="https://econecta.io/logo.png"
-            width="150"
-            height="40"
+            width="350"
+            height="106"
             alt="Econecta"
             style={logo}
           />

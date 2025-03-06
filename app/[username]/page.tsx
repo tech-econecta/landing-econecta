@@ -88,37 +88,49 @@ export async function generateMetadata(
     if (!response.ok) {
       return {
         title: "Usuario no encontrado",
+        description: "Este perfil no existe en Econecta",
+        openGraph: {
+          title: "Usuario no encontrado",
+          description: "Este perfil no existe en Econecta",
+          images: ['/og-image.jpg'],
+        },
       };
     }
 
     const { perfil }: UserData = await response.json();
 
     return {
-      title: `${perfil.title} | Perfil Digital`,
-      description: perfil.subtitle || 'Perfil digital profesional',
+      title: perfil.title || `${username} | Perfil Digital`,
+      description: perfil.subtitle || 'Perfil digital profesional en Econecta',
       openGraph: {
-        title: perfil.title,
-        description: perfil.subtitle,
-        images: [perfil.imagen],
+        title: perfil.title || `${username} | Perfil Digital`,
+        description: perfil.subtitle || 'Perfil digital profesional en Econecta',
+        images: [perfil.imagen || '/og-image.jpg'],
         type: "profile",
       },
       twitter: {
         card: 'summary_large_image',
-        title: perfil.title,
-        description: perfil.subtitle,
-        images: [perfil.imagen],
+        title: perfil.title || `${username} | Perfil Digital`,
+        description: perfil.subtitle || 'Perfil digital profesional en Econecta',
+        images: [perfil.imagen || '/og-image.jpg'],
       },
       icons: [{
         rel: 'icon',
-        url: perfil.imagen,
+        url: perfil.imagen || '/favicon.ico',
       }, {
         rel: 'apple-touch-icon',
-        url: perfil.imagen,
+        url: perfil.imagen || '/favicon.ico',
       }],
     };
   } catch (error) {
     return {
       title: "Error",
+      description: "Ocurrió un error al cargar este perfil",
+      openGraph: {
+        title: "Error",
+        description: "Ocurrió un error al cargar este perfil",
+        images: ['/og-image.jpg'],
+      },
     };
   }
 }

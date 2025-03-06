@@ -17,10 +17,16 @@ export default function Planes() {
             </p>
             <ul className="mt-8 space-y-3 text-sm leading-6 text-gray-600">
               <li>Perfil digital personalizable</li>
-              <li>Enlaces ilimitados</li>
+              <li>Botones ilimitados</li>
               <li>Analíticas básicas</li>
               <li>Soporte técnico</li>
             </ul>
+            <a
+              href="https://my.econecta.io"
+              className="mt-8 block w-full rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              Adquirir ahora
+            </a>
           </div>
 
           {/* Tarjeta PVC */}
@@ -37,6 +43,12 @@ export default function Planes() {
               <li>Tecnología NFC integrada</li>
               <li>Resistente y duradera</li>
             </ul>
+            <a
+              href="https://my.econecta.io"
+              className="mt-8 block w-full rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              Adquirir ahora
+            </a>
           </div>
 
           {/* Tarjeta Metal */}
@@ -53,6 +65,12 @@ export default function Planes() {
               <li>Diseño personalizado</li>
               <li>Máxima durabilidad</li>
             </ul>
+            <a
+              href="https://my.econecta.io"
+              className="mt-8 block w-full rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              Adquirir ahora
+            </a>
           </div>
         </div>
       </div>

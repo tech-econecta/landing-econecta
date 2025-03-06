@@ -62,7 +62,7 @@ export default function Navbar() {
           <div className="hidden sm:block">
             <a
               href="https://app.econecta.io"
-              className="inline-flex items-center px-6 py-2.5 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 scale-[0.9]"
             >
               Iniciar Sesión
             </a>

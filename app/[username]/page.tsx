@@ -79,7 +79,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.params;
   const { username } = params;
-  const defaultMetaData = await parent;
 
   try {
     const response = await fetch(
@@ -87,27 +86,37 @@ export async function generateMetadata(
     );
 
     if (!response.ok) {
-      // console.log(`Error fetching user data for username: ${username}`);
       return {
-        title: "User Not Found",
+        title: "Usuario no encontrado",
       };
     }
 
     const { perfil }: UserData = await response.json();
 
     return {
-      title: `${perfil.title} | Perfil`,
+      title: `${perfil.title} | Perfil Digital`,
+      description: perfil.subtitle || 'Perfil digital profesional',
       openGraph: {
-        images: perfil.brandLogoPath || defaultMetaData.openGraph?.images,
-        type: "website",
+        title: perfil.title,
+        description: perfil.subtitle,
+        images: [perfil.imagen],
+        type: "profile",
       },
-      icons: {
-        icon: perfil.imagen || defaultMetaData.icons?.icon,
-        apple: perfil.imagen || defaultMetaData.icons?.icon,
+      twitter: {
+        card: 'summary_large_image',
+        title: perfil.title,
+        description: perfil.subtitle,
+        images: [perfil.imagen],
       },
+      icons: [{
+        rel: 'icon',
+        url: perfil.imagen,
+      }, {
+        rel: 'apple-touch-icon',
+        url: perfil.imagen,
+      }],
     };
   } catch (error) {
-    console.error("Error generating metadata:", error);
     return {
       title: "Error",
     };

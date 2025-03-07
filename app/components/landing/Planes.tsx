@@ -56,7 +56,7 @@ export default function Planes() {
             <h3 className="text-lg font-semibold leading-8 text-blue-600">Tarjeta Metal</h3>
             <p className="mt-4 text-sm leading-6 text-gray-600">Máxima elegancia</p>
             <p className="mt-6 flex items-baseline gap-x-1">
-              <span className="text-4xl font-bold tracking-tight text-gray-900">$44</span>
+              <span className="text-4xl font-bold tracking-tight text-gray-900">$42</span>
               <span className="text-sm font-semibold leading-6 text-gray-600">+IVA</span>
             </p>
             <ul className="mt-8 space-y-3 text-sm leading-6 text-gray-600">

@@ -162,7 +162,7 @@ export default async function CardPage(props: CardProps) {
               style={{
                 fontWeight: "bold",
                 fontSize: "24px",
-                margin: "0 0 0px",
+                margin: "0 0 10px 0px",
                 color: textColor,
               }}
             >

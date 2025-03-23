@@ -41,6 +41,12 @@ export default function Navbar() {
               >
                 Inicio
               </Link>
+              <Link 
+                href="https://store.econecta.io"
+                className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
+              >
+                Vende Online
+              </Link>
 
               <Link 
                 href="/about"

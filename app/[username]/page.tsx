@@ -73,6 +73,8 @@ type ProfileProps = {
   params: Promise<{ username: string }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(
   props: ProfileProps,
   parent: ResolvingMetadata
@@ -92,7 +94,7 @@ export async function generateMetadata(
         openGraph: {
           title: "Usuario no encontrado",
           description: "Este perfil no existe en Econecta",
-          images: ['/og-image.jpg'],
+          images: ["/og-image.jpg"],
         },
       };
     }
@@ -101,26 +103,31 @@ export async function generateMetadata(
 
     return {
       title: perfil.title || `${username} | Perfil Digital`,
-      description: perfil.subtitle || 'Perfil digital profesional en Econecta',
+      description: perfil.subtitle || "Perfil digital profesional en Econecta",
       openGraph: {
         title: perfil.title || `${username} | Perfil Digital`,
-        description: perfil.subtitle || 'Perfil digital profesional en Econecta',
-        images: [perfil.imagen || '/og-image.jpg'],
+        description:
+          perfil.subtitle || "Perfil digital profesional en Econecta",
+        images: [perfil.imagen || "/og-image.jpg"],
         type: "profile",
       },
       twitter: {
-        card: 'summary_large_image',
+        card: "summary_large_image",
         title: perfil.title || `${username} | Perfil Digital`,
-        description: perfil.subtitle || 'Perfil digital profesional en Econecta',
-        images: [perfil.imagen || '/og-image.jpg'],
+        description:
+          perfil.subtitle || "Perfil digital profesional en Econecta",
+        images: [perfil.imagen || "/og-image.jpg"],
       },
-      icons: [{
-        rel: 'icon',
-        url: perfil.imagen || '/favicon.ico',
-      }, {
-        rel: 'apple-touch-icon',
-        url: perfil.imagen || '/favicon.ico',
-      }],
+      icons: [
+        {
+          rel: "icon",
+          url: perfil.imagen || "/favicon.ico",
+        },
+        {
+          rel: "apple-touch-icon",
+          url: perfil.imagen || "/favicon.ico",
+        },
+      ],
     };
   } catch (error) {
     return {
@@ -129,7 +136,7 @@ export async function generateMetadata(
       openGraph: {
         title: "Error",
         description: "Ocurrió un error al cargar este perfil",
-        images: ['/og-image.jpg'],
+        images: ["/og-image.jpg"],
       },
     };
   }

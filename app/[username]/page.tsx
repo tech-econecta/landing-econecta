@@ -191,7 +191,6 @@ export default async function ProfilePage(props: ProfileProps) {
       slides,
       buttons,
     } = perfil;
-
     // Determina el fondo (imagen o color)
     const backgroundStyle = background_path
       ? {
@@ -200,7 +199,6 @@ export default async function ProfilePage(props: ProfileProps) {
           backgroundPosition: "center",
         }
       : { backgroundColor: background_color || "#ffffff" };
-
     const familyFont: React.CSSProperties = customFontUrl
       ? {
           fontFamily: new URL(customFontUrl).searchParams.get(

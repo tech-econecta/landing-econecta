@@ -84,7 +84,8 @@ export async function generateMetadata(
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`,
+      { cache: "no-store" }
     );
 
     if (!response.ok) {
@@ -148,7 +149,8 @@ export default async function ProfilePage(props: ProfileProps) {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`,
+      { cache: "no-store" }
     );
     if (!response.ok) {
       // console.log(`Error fetching user data for username: ${username}, Status: ${response.status}`);
@@ -168,6 +170,7 @@ export default async function ProfilePage(props: ProfileProps) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username }),
+      cache: "no-store",
     }).catch((err) => console.error("Error registrando la visita:", err));
 
     // Destructuramos para mejorar la claridad del uso de los datos
@@ -267,7 +270,7 @@ export default async function ProfilePage(props: ProfileProps) {
         </h2>
 
         {/* Carrusel condicional */}
-        {slide_activate && slides.length > 0 && (
+        {slides.length > 0 && (
           <div className="mb-4 w-full max-w-lg">
             <AppCarousel slides={slides} />
           </div>

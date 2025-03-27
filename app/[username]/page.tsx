@@ -3,7 +3,7 @@ import Buttons from "../components/perfil/buttons";
 import AppCarousel from "../components/perfil/slides";
 import Captador from "../components/perfil/captador";
 import { Empty } from "antd";
-
+import { getUser } from "./action-get.user";
 type Button = {
   label_color: string;
   color: string;
@@ -83,12 +83,9 @@ export async function generateMetadata(
   const { username } = params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`,
-      { cache: "no-store" }
-    );
+    const response = await getUser(username);
 
-    if (!response.ok) {
+    if (response.error) {
       return {
         title: "Usuario no encontrado",
         description: "Este perfil no existe en Econecta",
@@ -100,7 +97,7 @@ export async function generateMetadata(
       };
     }
 
-    const { perfil }: UserData = await response.json();
+    const { perfil }: UserData = response;
 
     return {
       title: perfil.title || `${username} | Perfil Digital`,
@@ -148,11 +145,8 @@ export default async function ProfilePage(props: ProfileProps) {
   const { username } = params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`,
-      { cache: "no-store" }
-    );
-    if (!response.ok) {
+    const response = await getUser(username);
+    if (response.error) {
       // console.log(`Error fetching user data for username: ${username}, Status: ${response.status}`);
       return (
         <div className="flex items-center justify-center h-screen">
@@ -161,7 +155,7 @@ export default async function ProfilePage(props: ProfileProps) {
       );
     }
 
-    const { perfil, captador }: UserData = await response.json();
+    const { perfil, captador }: UserData = response;
     // Registrar la visita al perfil
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/visit`, {
       method: "POST",

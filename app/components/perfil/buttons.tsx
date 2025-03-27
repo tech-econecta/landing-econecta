@@ -34,12 +34,14 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
       {buttonsData.map((button, index) => (
         <a
           key={index}
-          href={button.url}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={button.url.trim() || "#"}
+          target={button.url.trim() ? "_blank" : undefined}
+          rel={button.url.trim() ? "noopener noreferrer" : undefined}
           onClick={(e) => {
             e.preventDefault();
-            window.open(button.url, "_blank");
+            if (button.url.trim()) {
+              window.open(button.url, "_blank");
+            }
           }}
           style={{
             textDecoration: "none",

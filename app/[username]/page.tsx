@@ -162,7 +162,6 @@ export default async function ProfilePage(props: ProfileProps) {
     }
 
     const { perfil, captador }: UserData = await response.json();
-
     // Registrar la visita al perfil
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/visit`, {
       method: "POST",
@@ -172,7 +171,6 @@ export default async function ProfilePage(props: ProfileProps) {
       body: JSON.stringify({ username }),
       cache: "no-store",
     }).catch((err) => console.error("Error registrando la visita:", err));
-
     // Destructuramos para mejorar la claridad del uso de los datos
     const {
       background_path,

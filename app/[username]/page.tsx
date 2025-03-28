@@ -97,7 +97,7 @@ export async function generateMetadata(
       };
     }
 
-    const { perfil }: UserData = response;
+    const { perfil } = response as UserData;
 
     return {
       title: perfil.title || `${username} | Perfil Digital`,
@@ -155,7 +155,7 @@ export default async function ProfilePage(props: ProfileProps) {
       );
     }
 
-    const { perfil, captador }: UserData = response;
+    const { perfil, captador } = response as UserData;
     // Registrar la visita al perfil
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/visit`, {
       method: "POST",
@@ -205,14 +205,12 @@ export default async function ProfilePage(props: ProfileProps) {
         style={{ ...backgroundStyle, ...familyFont }}
       >
         {customFontUrl && <style>{`@import url('${customFontUrl}')`}</style>}
-
         {/* Logo de marca */}
         {brandLogo && (
           <div className="p-3">
             <img src={brandLogoPath} alt="Brand Logo" className="h-24 w-auto" />
           </div>
         )}
-
         {imagen && (
           <div className="p-2">
             <img
@@ -227,9 +225,7 @@ export default async function ProfilePage(props: ProfileProps) {
             />
           </div>
         )}
-
         {/* Título y subtítulo */}
-
         <h1
           className="text-center text-clip pl-2 pr-2"
           style={{
@@ -258,22 +254,18 @@ export default async function ProfilePage(props: ProfileProps) {
         >
           {subtitle}
         </h2>
-
         {/* Carrusel condicional */}
         {slides.length > 0 && (
           <div className="mb-4 w-full max-w-lg">
             <AppCarousel slides={slides} />
           </div>
         )}
-
         {/* Usa el componente Buttons */}
         <Buttons buttonsData={buttons} />
-
         {/* Ícono centrado debajo de los botones */}
         <div className="flex justify-center mt-4">
           <img src="/Iso3.png" alt="Icon" className="h-10 w-auto" />
         </div>
-
         {/* Modal de captura */}
         {captador && captador?.visible && (
           <Captador

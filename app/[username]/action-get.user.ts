@@ -24,18 +24,7 @@ export async function getUser(username: string) {
       };
     }
 
-    let userData: any;
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      userData = {
-        perfil: data.perfil || {}, // Asegurarse de que perfil existe
-        captador: data.captador || null, // Asegurarse de que captador existe
-      };
-    });
-
-    // console.log("User data retrieved from Firestore:", userData);
-
-    return userData;
+    return snapshot.docs[0].data();
   } catch (error) {
     console.error("Error fetching user data:", error);
     return {

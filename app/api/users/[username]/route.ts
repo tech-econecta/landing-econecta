@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
-
 export async function GET(
   request: Request,
   props: { params: Promise<{ username: string }> }
 ) {
   const params = await props.params;
+
   try {
     if (!params || !params.username) {
       console.error("Route parameters are missing");

@@ -15,9 +15,11 @@ export async function getUser(username: string) {
   }
   try {
     const usersRef = collection(db, "users");
-    const q = query(usersRef, where("user_name", "==", username));
+    const decodedUsername = decodeURIComponent(username);
+    const q = query(usersRef, where("user_name", "==", decodedUsername));
     const snapshot = await getDocs(q);
 
+    console.log({ snapshot: snapshot.docs });
     if (snapshot.empty) {
       return {
         error: "User not found",

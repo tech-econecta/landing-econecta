@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Drawer } from 'antd';
-import { MenuOutlined } from '@ant-design/icons';
+import { useState } from "react";
+import Link from "next/link";
+import { Drawer } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -25,37 +25,33 @@ export default function Navbar() {
             {/* Logo siempre visible */}
             <div className="flex-shrink-0">
               <Link href="/">
-                <img
-                  className="h-10 w-auto"
-                  src="/logo.png"
-                  alt="Econecta"
-                />
+                <img className="h-10 w-auto" src="/logo.png" alt="Econecta" />
               </Link>
             </div>
 
             {/* Menú para desktop */}
             <div className="hidden sm:flex sm:space-x-6">
-              <Link 
+              <Link
                 href="/"
                 className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
               >
                 Inicio
               </Link>
-              <Link 
-                href="https://store.econecta.io"
+              <Link
+                href="https://econecta.shop"
                 className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
               >
                 Vende Online
               </Link>
 
-              <Link 
+              <Link
                 href="/about"
                 className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
               >
                 Sobre Nosotros
               </Link>
 
-              <Link 
+              <Link
                 href="/contact"
                 className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
               >
@@ -95,7 +91,7 @@ export default function Navbar() {
         className="font-medium"
       >
         <div className="flex flex-col space-y-6 pt-4">
-          <Link 
+          <Link
             href="/"
             className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
             onClick={onClose}
@@ -103,7 +99,7 @@ export default function Navbar() {
             Inicio
           </Link>
 
-          <Link 
+          <Link
             href="/about"
             className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
             onClick={onClose}
@@ -111,7 +107,7 @@ export default function Navbar() {
             Sobre Nosotros
           </Link>
 
-          <Link 
+          <Link
             href="/contacto"
             className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
             onClick={onClose}
@@ -130,4 +126,4 @@ export default function Navbar() {
       </Drawer>
     </nav>
   );
-} 
+}

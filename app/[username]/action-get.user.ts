@@ -19,7 +19,6 @@ export async function getUser(username: string) {
     const q = query(usersRef, where("user_name", "==", decodedUsername));
     const snapshot = await getDocs(q);
 
-    console.log({ snapshot: snapshot.docs });
     if (snapshot.empty) {
       return {
         error: "User not found",

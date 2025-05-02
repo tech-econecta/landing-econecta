@@ -36,6 +36,7 @@ const AppCarousel: React.FC<CarouselProps> = ({ slides }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const carouselRef = useRef<any>(null);
+  const [autoplay, setAutoplay] = useState(true);
 
   // Detectar si es un dispositivo móvil
   useEffect(() => {
@@ -54,27 +55,9 @@ const AppCarousel: React.FC<CarouselProps> = ({ slides }) => {
     };
   }, []);
 
-  // Pausar/reanudar el autoplay del carrusel según el estado del video
+  // Actualizar el autoplay del carrusel según el estado del video
   useEffect(() => {
-    if (carouselRef.current) {
-      if (isVideoPlaying) {
-        // Pausar el autoplay cuando el video está reproduciéndose
-        try {
-          // Usar el método slickPause que es el método correcto según la API
-          carouselRef.current.slickPause();
-        } catch (error) {
-          console.error("Error al pausar el carrusel:", error);
-        }
-      } else {
-        // Reanudar el autoplay cuando el video se detiene
-        try {
-          // Usar el método slickPlay que es el método correcto según la API
-          carouselRef.current.slickPlay();
-        } catch (error) {
-          console.error("Error al reanudar el carrusel:", error);
-        }
-      }
-    }
+    setAutoplay(!isVideoPlaying);
   }, [isVideoPlaying]);
 
   const handleSlideClick = (url: string) => {
@@ -110,7 +93,7 @@ const AppCarousel: React.FC<CarouselProps> = ({ slides }) => {
 
   return (
     <Carousel
-      autoplay
+      autoplay={autoplay}
       infinite
       arrows
       dots={false}

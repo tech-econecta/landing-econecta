@@ -17,12 +17,10 @@ export async function generateMetadata(
   const params = await props.params;
   const { username } = params;
   const defaultMetaData = await parent;
-
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
     );
-
     if (!response.ok) {
       // console.log(`Error fetching user data for username: ${username}`);
       return {

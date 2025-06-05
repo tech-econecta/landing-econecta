@@ -31,7 +31,7 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
         width: "100%", // Abarca el 100% del ancho de la pantalla
       }}
     >
-      {buttonsData.map((button, index) => (
+      {(buttonsData || []).map((button, index) => (
         <a
           key={index}
           href={button.url.trim() || "#"}

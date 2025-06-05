@@ -97,37 +97,38 @@ export async function generateMetadata(
       };
     }
 
-    const { perfil } = response as UserData;
+    const { perfil = {} } = (response || {}) as any;
 
     return {
-      title: perfil.title || `${username} | Perfil Digital`,
-      description: perfil.subtitle || "Perfil digital profesional en Econecta",
+      title: perfil?.title || `${username} | Perfil Digital`,
+      description: perfil?.subtitle || "Perfil digital profesional en Econecta",
       openGraph: {
-        title: perfil.title || `${username} | Perfil Digital`,
+        title: perfil?.title || `${username} | Perfil Digital`,
         description:
-          perfil.subtitle || "Perfil digital profesional en Econecta",
-        images: [perfil.imagen || "/og-image.jpg"],
+          perfil?.subtitle || "Perfil digital profesional en Econecta",
+        images: [perfil?.imagen || "/og-image.jpg"],
         type: "profile",
       },
       twitter: {
         card: "summary_large_image",
-        title: perfil.title || `${username} | Perfil Digital`,
+        title: perfil?.title || `${username} | Perfil Digital`,
         description:
-          perfil.subtitle || "Perfil digital profesional en Econecta",
-        images: [perfil.imagen || "/og-image.jpg"],
+          perfil?.subtitle || "Perfil digital profesional en Econecta",
+        images: [perfil?.imagen || "/og-image.jpg"],
       },
       icons: [
         {
           rel: "icon",
-          url: perfil.imagen || "/favicon.ico",
+          url: perfil?.imagen || "/favicon.ico",
         },
         {
           rel: "apple-touch-icon",
-          url: perfil.imagen || "/favicon.ico",
+          url: perfil?.imagen || "/favicon.ico",
         },
       ],
     };
   } catch (error) {
+    console.error("Error generating metadata:", error);
     return {
       title: "Error",
       description: "Ocurrió un error al cargar este perfil",
@@ -183,7 +184,7 @@ export default async function ProfilePage(props: ProfileProps) {
       slide_activate,
       slides,
       buttons,
-    } = perfil;
+    } = perfil || {};
     // Determina el fondo (imagen o color)
     const backgroundStyle = background_path
       ? {
@@ -235,7 +236,7 @@ export default async function ProfilePage(props: ProfileProps) {
             color: text_color,
             fontWeight: "bold",
             marginBottom: "2px",
-            ...(Object.keys(familyFont).length
+            ...(Object.keys(familyFont)?.length
               ? familyFont
               : { fontFamily: "Poppins" }),
           }}
@@ -248,7 +249,7 @@ export default async function ProfilePage(props: ProfileProps) {
             fontSize: `${subtitle_size}px`,
             // fontSize: "1.25em",
             color: text_color,
-            ...(Object.keys(familyFont).length
+            ...(Object.keys(familyFont)?.length
               ? familyFont
               : { fontFamily: "Poppins" }),
           }}
@@ -256,7 +257,7 @@ export default async function ProfilePage(props: ProfileProps) {
           {subtitle}
         </h2>
         {/* Carrusel condicional */}
-        {slides.length > 0 && (
+        {slides?.length > 0 && (
           <div className="mb-4 w-full max-w-lg">
             <AppCarousel slides={slides} />
           </div>

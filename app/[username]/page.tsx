@@ -4,70 +4,7 @@ import AppCarousel from "../components/perfil/slides";
 import Captador from "../components/perfil/captador";
 import { Empty } from "antd";
 import { getUser } from "./action-get.user";
-type Button = {
-  label_color: string;
-  color: string;
-  url: string;
-  border_radius: number;
-  path_icon: string;
-  width: number;
-  height: number;
-  label: string;
-};
 
-type Captador = {
-  visible?: boolean;
-  campos: {
-    nombre: string;
-    label: string;
-    placeholder?: string;
-    type: "input" | "DatePicker" | "InputNumber" | "Switch" | "Radio";
-  }[];
-  backgroundColor?: string;
-  submitColor?: string;
-  submitTextColor?: string;
-  title?: string;
-  titleColor?: string;
-};
-
-type Slide = {
-  image?: string;
-  url: string;
-  video?: string;
-};
-
-export type Perfil = {
-  background_path: string;
-  background_color: string;
-  brandLogoPath: string;
-  brandLogo: boolean;
-  customFontUrl: string;
-  text_color: string;
-  title: string;
-  title_size: number;
-  subtitle: string;
-  subtitle_size: number;
-  imagen: string;
-  image_size: number;
-  buttons: Button[];
-  slide_activate: boolean;
-  slides: Slide[];
-  card: {
-    subtitle: string;
-    title: string;
-    Button1TextColor: string;
-    Button2Color: string;
-    Button1Color: string;
-    cardColor: string;
-    Button2TextColor: string;
-    textColor: string;
-  };
-};
-
-export type UserData = {
-  perfil: Perfil;
-  captador?: Captador;
-};
 
 type ProfileProps = {
   params: Promise<{ username: string }>;
@@ -155,7 +92,7 @@ export default async function ProfilePage(props: ProfileProps) {
         </div>
       );
     }
-    const { perfil, captador } = response as UserData;
+    const { perfil, captador } = response;
     // Registrar la visita al perfil
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/visit`, {
       method: "POST",
@@ -183,6 +120,7 @@ export default async function ProfilePage(props: ProfileProps) {
       slides,
       buttons,
     } = perfil || {};
+    
     // Determina el fondo (imagen o color)
     const backgroundStyle = background_path
       ? {
@@ -255,13 +193,13 @@ export default async function ProfilePage(props: ProfileProps) {
           {subtitle}
         </h2>
         {/* Carrusel condicional */}
-        {slides?.length > 0 && (
+        {(slides || [])?.length > 0 && (
           <div className="mb-4 w-full max-w-lg">
-            <AppCarousel slides={slides} />
+            <AppCarousel slides={(slides || [])} />
           </div>
         )}
         {/* Usa el componente Buttons */}
-        <Buttons buttonsData={buttons} />
+        <Buttons buttonsData={(buttons || [])} />
         {/* Ícono centrado debajo de los botones */}
         <div className="flex justify-center mt-4">
           <img src="/Iso3.png" alt="Icon" className="h-10 w-auto" />

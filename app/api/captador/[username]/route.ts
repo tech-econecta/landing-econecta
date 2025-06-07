@@ -42,7 +42,6 @@ export async function POST(
     // Si la empresa tiene configuración de Odoo, crear lead y contacto
     if (userDoc.empresa?.ODOO) {
       const odooClient = new OdooClient(userDoc.empresa.ODOO);
-
       const leadData: { [key: string]: string } = {};
       for (const [key, value] of Object.entries(body)) {
         const campo = userDoc.captador?.campos.find(

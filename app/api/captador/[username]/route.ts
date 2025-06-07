@@ -58,21 +58,20 @@ export async function POST(
         const leadId = await odooClient.createLead(leadData);
 
         // Crear contacto si hay información suficiente
-        if (body.nombre || body.name) {
           const contactData: { [key: string]: string } = {};
           for (const [key, value] of Object.entries(body)) {
             const campo = userDoc.captador?.campos.find(
               (campo) => campo.nombre === key
             );
             if (campo) {
-              contactData[campo.odoo_field_key || key] = value as string;
+              contactData[(campo.odoo_field_key === 'email_from' ? 'email' : campo.odoo_field_key) || key] = value as string;
             }
           }
 
           const contactId = await odooClient.createContact(contactData);
           await odooClient.assignLeadToContact(leadId, contactId);
         }
-      } catch (error) {
+        catch (error) {
         console.error("Error al sincronizar con Odoo:", error);
         // No fallamos la petición si Odoo falla, solo registramos el error
       }

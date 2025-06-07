@@ -157,6 +157,7 @@ export class OdooClient {
           },
         }
       );
+      console.log({contactId})
 
       return contactId;
     } catch (error) {

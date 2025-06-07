@@ -1,8 +1,8 @@
 import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
 import { Empty } from "antd";
-import { Perfil, UserData } from "../page";
 import { url } from "inspector";
+import { Perfil, UserData } from "../action-get.user";
 
 type CardProps = {
   params: Promise<{ username: string }>;

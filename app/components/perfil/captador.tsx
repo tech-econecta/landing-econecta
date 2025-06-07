@@ -1,7 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, DatePicker, InputNumber, Switch, Radio, Button, message } from "antd";
+import {
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  InputNumber,
+  Switch,
+  Radio,
+  Button,
+  message,
+} from "antd";
 
 type CaptadorCampo = {
   nombre: string;
@@ -38,7 +48,7 @@ const Captador: React.FC<CaptadorProps> = ({
     if (visible) {
       const timer = setTimeout(() => {
         setIsModalVisible(true);
-      }, 5000);
+      }, 0);
 
       return () => clearTimeout(timer); // Limpia el temporizador si el componente se desmonta
     }
@@ -91,31 +101,56 @@ const Captador: React.FC<CaptadorProps> = ({
           switch (campo.type) {
             case "input":
               return (
-                <Form.Item key={campo.nombre} name={campo.nombre} label={campo.label} rules={[{ required: true }]}>
+                <Form.Item
+                  key={campo.nombre}
+                  name={campo.nombre}
+                  label={campo.label}
+                  rules={[{ required: true }]}
+                >
                   <Input placeholder={campo.placeholder} />
                 </Form.Item>
               );
             case "DatePicker":
               return (
-                <Form.Item key={campo.nombre} name={campo.nombre} label={campo.label} rules={[{ required: true }]}>
+                <Form.Item
+                  key={campo.nombre}
+                  name={campo.nombre}
+                  label={campo.label}
+                  rules={[{ required: true }]}
+                >
                   <DatePicker style={{ width: "100%" }} />
                 </Form.Item>
               );
             case "InputNumber":
               return (
-                <Form.Item key={campo.nombre} name={campo.nombre} label={campo.label} rules={[{ required: true }]}>
+                <Form.Item
+                  key={campo.nombre}
+                  name={campo.nombre}
+                  label={campo.label}
+                  rules={[{ required: true }]}
+                >
                   <InputNumber style={{ width: "100%" }} />
                 </Form.Item>
               );
             case "Switch":
               return (
-                <Form.Item key={campo.nombre} name={campo.nombre} label={campo.label} valuePropName="checked">
+                <Form.Item
+                  key={campo.nombre}
+                  name={campo.nombre}
+                  label={campo.label}
+                  valuePropName="checked"
+                >
                   <Switch />
                 </Form.Item>
               );
             case "Radio":
               return (
-                <Form.Item key={campo.nombre} name={campo.nombre} label={campo.label} rules={[{ required: true }]}>
+                <Form.Item
+                  key={campo.nombre}
+                  name={campo.nombre}
+                  label={campo.label}
+                  rules={[{ required: true }]}
+                >
                   <Radio.Group>
                     <Radio value={true}>Sí</Radio>
                     <Radio value={false}>No</Radio>

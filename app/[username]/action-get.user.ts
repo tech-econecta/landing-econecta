@@ -1,11 +1,12 @@
 "use server";
 
-import { getDocs } from "firebase/firestore";
+import { getDoc, getDocs } from "firebase/firestore";
 
 import { db } from "@/firebase";
 import { query, where } from "firebase/firestore";
 
 import { collection } from "firebase/firestore";
+import { DocumentReference } from "firebase-admin/firestore";
 
 export async function getUser(username: string) {
   if (!username) {
@@ -25,7 +26,13 @@ export async function getUser(username: string) {
       };
     }
 
-    return snapshot.docs[0].data();
+    const data = snapshot.docs[0].data();
+    const empresaRef = data.empresa_ref as DocumentReference;
+    //TODO: Cursor PROMPT Fix error
+    //@ts-ignore
+    const empresaSnapshot = await getDoc(empresaRef);
+    const empresaData = empresaSnapshot.data();
+    return { ...data, empresa: empresaData };
   } catch (error) {
     console.error("Error fetching user data:", error);
     return {

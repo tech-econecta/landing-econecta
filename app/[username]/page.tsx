@@ -155,8 +155,6 @@ export default async function ProfilePage(props: ProfileProps) {
         </div>
       );
     }
-
-    console.log({ response });
     const { perfil, captador } = response as UserData;
     // Registrar la visita al perfil
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/visit`, {

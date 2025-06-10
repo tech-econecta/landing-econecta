@@ -1,6 +1,6 @@
 "use server";
 
-import { DocumentData, getDoc, getDocs } from "firebase/firestore";
+import { DocumentData, getDoc, getDocs, doc } from "firebase/firestore";
 
 import { db } from "@/firebase";
 import { query, where } from "firebase/firestore";
@@ -35,14 +35,23 @@ export async function getUser(username: string): Promise<GetUserData> {
     }
 
     const data = snapshot.docs[0].data();
-    const referencia =snapshot.docs[0].ref
-    const empresaRef = data.empresa_ref as DocumentReference;
+    const referencia = snapshot.docs[0].ref;
     
-    
-    let empresaData : Empresa | undefined = undefined 
-    if (empresaRef) {
-      const empresaSnapshot = await getDoc(empresaRef);
-      empresaData = empresaSnapshot.data() as Empresa;
+    let empresaData: Empresa | undefined = undefined;
+    if (data.empresa_ref) {
+      try {
+        // Si es un string, convertirlo a DocumentReference
+        const empresaRef = typeof data.empresa_ref === 'string' 
+          ? doc(db, 'empresas', data.empresa_ref.split('/')[1])
+          : data.empresa_ref;
+
+        const empresaSnapshot = await getDoc(empresaRef);
+        if (empresaSnapshot.exists()) {
+          empresaData = empresaSnapshot.data() as Empresa;
+        }
+      } catch (error) {
+        console.error("Error al obtener datos de la empresa:", error);
+      }
     }
     return { ...data, referencia, empresa: empresaData };
   } catch (error) {

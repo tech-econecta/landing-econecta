@@ -5,10 +5,10 @@ import { db } from "@/firebase";
 
 const getGeoInfo = async (ip: string) => {
   try {
-    const response = await axios.get(`https://ipinfo.io/${ip}/json?token=3f7e25988623a6`);
+    const response = await axios.get(`http://ip-api.com/json/${ip}`);
     return {
       country: response.data.country || "Desconocido",
-      region: response.data.region || "Desconocido",
+      region: response.data.regionName || "Desconocido",
       city: response.data.city || "Desconocido",
     };
   } catch (error) {
@@ -18,9 +18,19 @@ const getGeoInfo = async (ip: string) => {
 };
 
 const getClientIp = (req: Request): string => {
-  const forwarded = req.headers.get("x-forwarded-for");
-  const ip = forwarded || "127.0.0.1"; // Default IP in local environment
-  return ip.split(",")[0].trim();
+  // Intentar obtener la IP de diferentes headers en orden de prioridad
+  const headers = req.headers;
+  const ipAddress = 
+    headers.get("cf-connecting-ip") || // Cloudflare
+    headers.get("x-real-ip") || // Nginx
+    headers.get("x-forwarded-for")?.split(",")[0] || // Proxy general
+    headers.get("x-client-ip") || // Proxy alternativo
+    headers.get("x-forwarded") || // Proxy general
+    headers.get("forwarded-for") || // Proxy general
+    headers.get("forwarded") || // Proxy general
+    "0.0.0.0"; // IP por defecto si no se encuentra ninguna
+
+  return ipAddress.trim();
 };
 
 export async function POST(request: Request) {
@@ -28,6 +38,7 @@ export async function POST(request: Request) {
     const { username } = await request.json();
     const ip = getClientIp(request);
     const geoInfo = await getGeoInfo(ip);
+    console.log(ip);
 
     // Verificar usuario
     const usersRef = collection(db, "users");

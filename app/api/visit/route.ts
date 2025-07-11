@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import { collection, query, where, getDocs, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/firebase";
+import { getClientIp as getIP } from 'request-ip';
 
 const getGeoInfo = async (ip: string) => {
   try {
@@ -18,19 +19,21 @@ const getGeoInfo = async (ip: string) => {
 };
 
 const getClientIp = (req: Request): string => {
-  // Intentar obtener la IP de diferentes headers en orden de prioridad
-  const headers = req.headers;
-  const ipAddress = 
-    headers.get("cf-connecting-ip") || // Cloudflare
-    headers.get("x-real-ip") || // Nginx
-    headers.get("x-forwarded-for")?.split(",")[0] || // Proxy general
-    headers.get("x-client-ip") || // Proxy alternativo
-    headers.get("x-forwarded") || // Proxy general
-    headers.get("forwarded-for") || // Proxy general
-    headers.get("forwarded") || // Proxy general
-    "0.0.0.0"; // IP por defecto si no se encuentra ninguna
+  // Convertir los headers de Request a un objeto simple
+  const headers: { [key: string]: string } = {};
+  req.headers.forEach((value, key) => {
+    headers[key] = value;
+  });
 
-  return ipAddress.trim();
+  // Crear un objeto similar a req para request-ip
+  const reqObject = {
+    headers,
+    connection: { remoteAddress: headers['x-real-ip'] || '0.0.0.0' },
+    socket: { remoteAddress: headers['x-real-ip'] || '0.0.0.0' }
+  };
+
+  const ip = getIP(reqObject as any) || '0.0.0.0';
+  return ip;
 };
 
 export async function POST(request: Request) {

@@ -41,7 +41,6 @@ export async function POST(request: Request) {
     const { username } = await request.json();
     const ip = getClientIp(request);
     const geoInfo = await getGeoInfo(ip);
-    console.log(ip);
 
     // Verificar usuario
     const usersRef = collection(db, "users");
@@ -63,7 +62,11 @@ export async function POST(request: Request) {
       city: geoInfo.city,
     });
 
-    return NextResponse.json({ message: "Visita registrada correctamente" });
+    return NextResponse.json({ 
+      message: "Visita registrada correctamente",
+      ip,
+      geoInfo
+    });
   } catch (error) {
     console.error("Error registrando la visita:", error);
     return NextResponse.json({ error: "Error registrando la visita" }, { status: 500 });

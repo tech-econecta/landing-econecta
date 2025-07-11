@@ -101,7 +101,14 @@ export default async function ProfilePage(props: ProfileProps) {
       },
       body: JSON.stringify({ username }),
       cache: "no-store",
-    }).catch((err) => console.error("Error registrando la visita:", err));
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('IP del visitante:', data.ip);
+      console.log('Información geográfica:', data.geoInfo);
+    })
+    .catch((err) => console.error("Error registrando la visita:", err));
+
     // Destructuramos para mejorar la claridad del uso de los datos
     const {
       background_path,

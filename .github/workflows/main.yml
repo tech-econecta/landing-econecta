@@ -1,0 +1,34 @@
+# Nombre del workflow
+name: Despliegue Continuo a Servidor
+
+# Activador: se ejecuta cada vez que hay un push a la rama 'main'
+on:
+  push:
+    branches: [main]
+
+# Tareas a ejecutar
+jobs:
+  deploy:
+    # Usa una máquina virtual de Ubuntu proporcionada por GitHub
+    runs-on: debian-latest
+
+    steps:
+      - name: Conectar al servidor y desplegar
+        # Usamos una acción pre-hecha para facilitar la conexión SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            # 1. Navega al directorio del proyecto
+            cd ${{ secrets.WORK_DIR }}
+
+            # 2. Obtén el código más reciente desde GitHub
+            git pull origin main
+
+            # 3. Reconstruye y reinicia los contenedores en segundo plano
+            docker-compose up --build -d
+
+            # 4. (Opcional pero recomendado) Limpia imágenes de Docker viejas
+            docker image prune -f

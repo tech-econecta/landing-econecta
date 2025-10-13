@@ -2,9 +2,9 @@ import { Metadata, ResolvingMetadata } from "next";
 import Buttons from "../components/perfil/buttons";
 import AppCarousel from "../components/perfil/slides";
 import Captador from "../components/perfil/captador";
+import VisitTracker from "../components/VisitTracker";
 import { Empty } from "antd";
 import { getUser } from "./action-get.user";
-
 
 type ProfileProps = {
   params: Promise<{ username: string }>;
@@ -93,21 +93,6 @@ export default async function ProfilePage(props: ProfileProps) {
       );
     }
     const { perfil, captador } = response;
-    // Registrar la visita al perfil
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/visit`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username }),
-      cache: "no-store",
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('IP del visitante:', data.ip);
-      console.log('Información geográfica:', data.geoInfo);
-    })
-    .catch((err) => console.error("Error registrando la visita:", err));
 
     // Destructuramos para mejorar la claridad del uso de los datos
     const {
@@ -127,7 +112,7 @@ export default async function ProfilePage(props: ProfileProps) {
       slides,
       buttons,
     } = perfil || {};
-    
+
     // Determina el fondo (imagen o color)
     const backgroundStyle = background_path
       ? {
@@ -149,6 +134,8 @@ export default async function ProfilePage(props: ProfileProps) {
         className="min-h-screen flex flex-col items-center pt-4 pb-4"
         style={{ ...backgroundStyle, ...familyFont }}
       >
+        {/* Componente para registrar visitas desde el cliente */}
+        <VisitTracker username={username} />
         {customFontUrl && <style>{`@import url('${customFontUrl}')`}</style>}
         {/* Logo de marca */}
         {brandLogo && (
@@ -202,11 +189,11 @@ export default async function ProfilePage(props: ProfileProps) {
         {/* Carrusel condicional */}
         {(slides || [])?.length > 0 && (
           <div className="mb-4 w-full max-w-lg">
-            <AppCarousel slides={(slides || [])} />
+            <AppCarousel slides={slides || []} />
           </div>
         )}
         {/* Usa el componente Buttons */}
-        <Buttons buttonsData={(buttons || [])} />
+        <Buttons buttonsData={buttons || []} />
         {/* Ícono centrado debajo de los botones */}
         <div className="flex justify-center mt-4">
           <img src="/Iso3.png" alt="Icon" className="h-10 w-auto" />

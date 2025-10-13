@@ -32,26 +32,6 @@ export default function VisitTracker({ username }: VisitTrackerProps) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        /*         const data = await response.json(); */
-
-        /*         console.log("=== REGISTRO DE VISITA (CLIENTE) ===");
-        console.log("Usuario:", username);
-        console.log("IP del visitante:", data.ip);
-        if (data.ip === "::1" || data.ip === "127.0.0.1") {
-          console.log(
-            "ℹ️  NOTA: IP ::1 indica que estás en localhost/desarrollo"
-          );
-        }
-        console.log("Información geográfica:", data.geoInfo);
-        console.log(
-          "Fecha/Hora Venezuela:",
-          data.formattedDate || data.timestamp
-        );
-        console.log("Zona horaria:", data.timezone);
-        console.log("User Agent:", navigator.userAgent);
-        console.log("Es IP local:", data.geoInfo?.isLocal ? "SÍ" : "NO");
-        console.log("=====================================");
- */
         hasRegistered.current = true;
       } catch (error) {
         console.error("Error registrando la visita:", error);

@@ -11,6 +11,7 @@ import {
 import { db } from "@/firebase";
 import { getClientIp as getIP } from "request-ip";
 import { headers } from "next/headers";
+import { toVenezuelaTime, formatVenezuelaDate } from "@/app/lib/timezone";
 
 const getGeoInfo = async (ip: string) => {
   // Si es una IP local, usar información por defecto
@@ -139,23 +140,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Crear fecha con zona horaria de Venezuela
+    // Crear fecha con zona horaria de Venezuela usando las utilidades correctas
     const now = new Date();
-    const venezuelaTime = new Date(
-      now.toLocaleString("en-US", { timeZone: "America/Caracas" })
-    );
-
-    // Formatear fecha para mostrar en formato legible (12 horas)
-    const formattedDate = now.toLocaleString("es-VE", {
-      timeZone: "America/Caracas",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    });
+    const venezuelaTime = toVenezuelaTime(now);
+    const formattedDate = formatVenezuelaDate(venezuelaTime);
 
     // Referencia del usuario y agregar estadística
     const userDoc = snapshot.docs[0];

@@ -11,7 +11,12 @@ import {
 import { db } from "@/firebase";
 import { getClientIp as getIP } from "request-ip";
 import { headers } from "next/headers";
-import { toVenezuelaTime, formatVenezuelaDate } from "@/app/lib/timezone";
+import {
+  toVenezuelaTime,
+  formatVenezuelaDate,
+  getCurrentVenezuelaTime,
+  getTimeDebugInfo,
+} from "@/app/lib/timezone";
 
 const getGeoInfo = async (ip: string) => {
   // Si es una IP local, usar información por defecto
@@ -140,10 +145,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Crear fecha con zona horaria de Venezuela usando las utilidades correctas
+    // Crear fecha con zona horaria de Venezuela usando las utilidades corregidas
     const now = new Date();
-    const venezuelaTime = toVenezuelaTime(now);
+    const venezuelaTime = getCurrentVenezuelaTime(); // Usar la función más robusta
     const formattedDate = formatVenezuelaDate(venezuelaTime);
+
+    // Obtener información de debug del tiempo
+    const timeDebugInfo = getTimeDebugInfo();
 
     // Referencia del usuario y agregar estadística
     const userDoc = snapshot.docs[0];
@@ -157,6 +165,9 @@ export async function POST(request: Request) {
       timezone: geoInfo.timezone || "America/Caracas",
       isLocal: geoInfo.isLocal || false,
       hasGeoError: geoInfo.error || false,
+      // Información adicional de debug
+      serverTimezone: timeDebugInfo.serverTimezone,
+      offsetMinutes: timeDebugInfo.offsetMinutes,
     });
 
     console.log(`Visita registrada para ${username}:`, {
@@ -165,6 +176,7 @@ export async function POST(request: Request) {
       formattedDate,
       venezuelaTime: venezuelaTime.toISOString(),
       utcTime: now.toISOString(),
+      debugInfo: timeDebugInfo,
     });
 
     return NextResponse.json({
@@ -174,6 +186,7 @@ export async function POST(request: Request) {
       timestamp: venezuelaTime.toISOString(),
       formattedDate,
       timezone: "America/Caracas",
+      debugInfo: timeDebugInfo, // Incluir información de debug en la respuesta
     });
   } catch (error) {
     console.error("Error registrando la visita:", error);

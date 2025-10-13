@@ -10,12 +10,12 @@ on:
 jobs:
   deploy:
     # Usa una máquina virtual de Ubuntu proporcionada por GitHub
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Conectar al servidor y desplegar
         # Usamos una acción pre-hecha para facilitar la conexión SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}

@@ -12,7 +12,7 @@ services:
     image: nginx:latest
     restart: always
     ports:
-      - "80:80"   # Puerto HTTP estándar
+      - "80:80" # Puerto HTTP estándar
       # - "443:443" # Descomentar cuando tengas certificados SSL
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf

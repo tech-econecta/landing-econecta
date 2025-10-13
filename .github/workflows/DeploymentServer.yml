@@ -17,28 +17,28 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          # Usamos el secret SSH_HOST para que apunte a tu servidor real.
-          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
-        
-      - name: Conectar al servidor y desplegar
+          echo "${{ secrets.SSH_PRIVATE_KEY }}"
+          echo "${{ secrets.SSH_HOST }}"
+          echo "${{ secrets.SSH_USER }}"
+          echo "${{ secrets.WORK_DIR }}"
+
+      #- name: Conectar al servidor y desplegar
         # Usamos una acción pre-hecha para facilitar la conexión SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
+        #uses: appleboy/ssh-action@v1.0.3
+        #with:
+          #host: ${{ secrets.SSH_HOST }}
+          #username: ${{ secrets.SSH_USER }}
+          #key: ${{ secrets.SSH_PRIVATE_KEY }}
+          #script: |
             # 1. Navega al directorio del proyecto
-            cd ${{ secrets.WORK_DIR }}
+            #cd ${{ secrets.WORK_DIR }}
 
             # 2. Obtén el código más reciente desde GitHub
-            git pull origin main
+            #git pull origin main
 
             # 3. Reconstruye y reinicia los contenedores en segundo plano
-            docker-compose up --build -d
+            #docker-compose up --build -d
 
             # 4. (Opcional pero recomendado) Limpia imágenes de Docker viejas
-            docker image prune -f
+            #docker image prune -f
     

@@ -7,13 +7,13 @@ services:
     restart: always
     # No exponemos el puerto, nginx se comunicará internamente
 
-  # El servicio del reverse proxy con SSL en puerto 3000
+  # El servicio del reverse proxy
   nginx:
     image: nginx:latest
     restart: always
     ports:
-      - "80:80" # Puerto 80 para validación de certificados Let's Encrypt
-      - "3000:3000" # Puerto 3000 con SSL para tu dominio
+      - "80:80"   # Puerto HTTP estándar
+      # - "443:443" # Descomentar cuando tengas certificados SSL
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./certbot/conf:/etc/letsencrypt

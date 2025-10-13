@@ -1,29 +1,48 @@
+version: "3.8"
+
 services:
-  # El servicio de tu aplicación
+  # El servicio de su aplicación Next.js
   app:
     build: . # Construye la imagen usando el Dockerfile en la carpeta actual
     restart: always
-    # No exponemos el puerto, nginx se comunicará internamente
+    # Nginx se comunicará con el puerto 3000 internamente a través de la red de Docker
 
-  # El servicio del reverse proxy con SSL en puerto 3000
+  # El servicio Nginx, que actúa como Reverse Proxy y maneja el SSL/TLS
   nginx:
     image: nginx:latest
     restart: always
     ports:
-      - "80:80" # Puerto 80 para HTTP y validación de certificados Let's Encrypt
+      - "80:80" # Puerto 80 para HTTP y validación de certificados
       - "443:443" # Puerto 443 para HTTPS
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt # Volumen compartido para leer los certificados
+      - ./certbot/www:/var/www/certbot # Volumen compartido para la validación webroot
     depends_on:
       - app
+      - certbot-init # <<-- Nginx espera a que Certbot genere los certificados
 
-  # Servicio de Certbot para certificados SSL
+  # Servicio TEMPORAL para la obtención inicial del certificado
+  # Este servicio se ejecuta, obtiene el certificado, y luego sale (exit).
+  certbot-init:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: >
+      certbot certonly --webroot -w /var/www/certbot 
+      -d econecta.io -d www.econecta.io 
+      --email darioflore170@gmail.com # <-- ¡REEMPLAZAR!
+      --rsa-key-size 4096
+      --agree-tos
+      --no-eff-email
+      --force-renewal # Forzamos la renovación solo para asegurar que se cree si el directorio existe
+
+  # Servicio Certbot para la RENOVACIÓN automática (cada 12 horas)
   certbot:
     image: certbot/certbot
     restart: unless-stopped
     volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt # Volumen compartido
+      - ./certbot/www:/var/www/certbot # Volumen compartido
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"

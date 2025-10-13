@@ -14,6 +14,14 @@ jobs:
     environment: PRODUCTION
 
     steps:
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          # Usamos el secret SSH_HOST para que apunte a tu servidor real.
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+        
       - name: Conectar al servidor y desplegar
         # Usamos una acción pre-hecha para facilitar la conexión SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -33,3 +41,4 @@ jobs:
 
             # 4. (Opcional pero recomendado) Limpia imágenes de Docker viejas
             docker image prune -f
+    

@@ -11,10 +11,10 @@ jobs:
   deploy:
     # Usa una máquina virtual de Ubuntu proporcionada por GitHub
     runs-on: ubuntu-latest
+    environment: PRODUCTION
 
     steps:
       - name: Conectar al servidor y desplegar
-        enviroment: PRODUCTION
         # Usamos una acción pre-hecha para facilitar la conexión SSH
         uses: appleboy/ssh-action@v1.0.3
         with:

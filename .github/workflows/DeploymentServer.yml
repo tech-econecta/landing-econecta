@@ -33,5 +33,3 @@ jobs:
 
             # 4. (Opcional pero recomendado) Limpia imágenes de Docker viejas
             docker image prune -f
-
-            

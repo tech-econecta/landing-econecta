@@ -29,14 +29,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    entrypoint: >
-      certbot certonly --webroot -w /var/www/certbot 
-      -d econecta.io -d www.econecta.io 
-      --email darioflore170@gmail.com # <-- ¡REEMPLAZAR!
-      --rsa-key-size 4096
-      --agree-tos
-      --no-eff-email
-      --force-renewal # Forzamos la renovación solo para asegurar que se cree si el directorio existe
+    entrypoint: "certbot certonly --webroot -w /var/www/certbot -d econecta.io -d www.econecta.io --email darioflore170@gmail.com --rsa-key-size 4096 --agree-tos --no-eff-email --force-renewal"
 
   # Servicio Certbot para la RENOVACIÓN automática (cada 12 horas)
   certbot:

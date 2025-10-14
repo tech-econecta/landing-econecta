@@ -138,7 +138,7 @@ export default async function ProfilePage(props: ProfileProps) {
         <VisitTracker username={username} />
         {customFontUrl && <style>{`@import url('${customFontUrl}')`}</style>}
         {/* Logo de marca */}
-        {brandLogo && (
+        {brandLogoPath && (
           <div className="p-3">
             <img src={brandLogoPath} alt="Brand Logo" className="h-24 w-auto" />
           </div>

@@ -25,7 +25,11 @@ export default function Navbar() {
             {/* Logo siempre visible */}
             <div className="flex-shrink-0">
               <Link href="/">
-                <img className="h-10 w-auto" src="/logo.png" alt="Econecta" />
+                <img
+                  className="h-10 w-auto"
+                  src="/logo.png"
+                  alt="Econecta - Tarjetas Digitales NFC Venezuela"
+                />
               </Link>
             </div>
 

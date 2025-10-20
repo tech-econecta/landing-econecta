@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from "next/image";
 
 export default function Hero() {
   return (
@@ -6,9 +6,9 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto">
         {/* Imagen para móvil (arriba del texto) */}
         <div className="relative hidden">
-          <Image 
+          <Image
             src="/card-hero.png"
-            alt="Tarjeta digital Econecta - Comparte tu información profesional con NFC"
+            alt="Tarjeta digital NFC Econecta - Moderniza tu networking profesional compartiendo contactos con un solo toque en Venezuela"
             width={600}
             height={400}
             priority
@@ -24,11 +24,15 @@ export default function Hero() {
                 <span className="block text-blue-600">en una tarjeta</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                Comparte tu información de contacto y redes sociales con un solo toque. Moderniza tu networking con nuestra tarjeta digital NFC.
+                Comparte tu información de contacto y redes sociales con un solo
+                toque. Moderniza tu networking con nuestra tarjeta digital NFC.
               </p>
               <div className="mt-5 sm:mt-8 flex justify-center lg:justify-start">
                 <div className="rounded-md shadow scale-[0.8]">
-                  <a href="https://my.econecta.io/" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
+                  <a
+                    href="https://my.econecta.io/"
+                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
+                  >
                     Obtén tu tarjeta
                   </a>
                 </div>
@@ -40,7 +44,7 @@ export default function Hero() {
 
       {/* Imagen para desktop (lado derecho) */}
       <div className="hidden lg:block lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-        <Image 
+        <Image
           src="/card-hero.png"
           alt="Tarjeta digital Econecta - Comparte tu información profesional con NFC"
           width={600}
@@ -51,4 +55,4 @@ export default function Hero() {
       </div>
     </div>
   );
-} 
+}

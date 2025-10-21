@@ -60,7 +60,6 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
               cursor: "pointer",
               padding: "5px",
               margin: "auto",
-              fontFamily: "Poppins",
             }}
           >
             {button.path_icon && (
@@ -84,7 +83,6 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
                 textAlign: "center",
                 wordBreak: "break-word",
                 whiteSpace: "normal",
-                fontFamily: "Poppins",
               }}
             >
               {button.label}

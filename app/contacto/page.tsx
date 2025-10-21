@@ -1,4 +1,3 @@
-import { Poppins } from "next/font/google";
 import { Metadata } from "next";
 import Navbar from "../components/landing/Navbar";
 import Footer from "../components/landing/Footer";
@@ -35,16 +34,11 @@ export const metadata: Metadata = {
   },
 };
 
-const poppins = Poppins({
-  weight: ["400", "600", "700"],
-  subsets: ["latin"],
-});
-
 export default function ContactPage() {
   return (
     <section className={urbanist.className}>
       <Navbar />
-      <div className={`min-h-screen bg-white ${poppins.className}`}>
+      <div className={`min-h-screen bg-white`}>
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
           <Breadcrumbs
             items={[{ label: "Inicio", href: "/" }, { label: "Contacto" }]}

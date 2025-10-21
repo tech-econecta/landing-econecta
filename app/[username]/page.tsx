@@ -121,18 +121,16 @@ export default async function ProfilePage(props: ProfileProps) {
           backgroundPosition: "center",
         }
       : { backgroundColor: background_color || "#ffffff" };
-    const familyFont: React.CSSProperties = customFontUrl
-      ? {
-          fontFamily: new URL(customFontUrl).searchParams.get(
-            "family"
-          ) as string,
-        }
-      : {};
+    const fontFamily: React.CSSProperties["fontFamily"] = customFontUrl
+      ? (new URL(customFontUrl).searchParams.get("family") as string)
+      : "var(--font-urbanist)";
+
+    console.log({ customFontUrl });
 
     return (
       <div
-        className="min-h-screen flex flex-col items-center pt-4 pb-4"
-        style={{ ...backgroundStyle, ...familyFont }}
+        className={`min-h-screen flex flex-col items-center pt-4 pb-4`}
+        style={{ ...backgroundStyle, fontFamily }}
       >
         {/* Componente para registrar visitas desde el cliente */}
         <VisitTracker username={username} />
@@ -162,13 +160,10 @@ export default async function ProfilePage(props: ProfileProps) {
           className="text-center text-clip pl-2 pr-2"
           style={{
             fontSize: `${title_size}px`,
-            // fontSize: "1.70em",
             color: text_color,
             fontWeight: "bold",
             marginBottom: "2px",
-            ...(Object.keys(familyFont)?.length
-              ? familyFont
-              : { fontFamily: "Poppins" }),
+            fontFamily,
           }}
         >
           {title}
@@ -177,11 +172,8 @@ export default async function ProfilePage(props: ProfileProps) {
           className="text-center font-semibold"
           style={{
             fontSize: `${subtitle_size}px`,
-            // fontSize: "1.25em",
+            fontFamily,
             color: text_color,
-            ...(Object.keys(familyFont)?.length
-              ? familyFont
-              : { fontFamily: "Poppins" }),
           }}
         >
           {subtitle}

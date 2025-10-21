@@ -1,15 +1,15 @@
 "use client";
 
-import { Poppins } from "next/font/google";
+import { Urbanist } from "next/font/google";
 
-const poppins = Poppins({
-  weight: ["400", "600", "700"],
+const urbanist = Urbanist({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export default function TermsPage() {
   return (
-    <div className={`min-h-screen bg-white ${poppins.className}`}>
+    <div className={`min-h-screen bg-white ${urbanist.className}`}>
       <div className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
           Términos y Condiciones
@@ -21,7 +21,9 @@ export default function TermsPage() {
               1. Recopilación y Uso de Datos.
             </h2>
             <p className="text-gray-600 mb-4">
-              En [Nombre de la Empresa], recopilamos y procesamos información personal para proporcionar nuestros servicios de tarjetas NFC. Esta información incluye, pero no se limita a:
+              En [Nombre de la Empresa], recopilamos y procesamos información
+              personal para proporcionar nuestros servicios de tarjetas NFC.
+              Esta información incluye, pero no se limita a:
             </p>
             <ul className="list-disc pl-6 text-gray-600">
               <li>Nombre completo</li>
@@ -51,9 +53,7 @@ export default function TermsPage() {
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">
               3. Derechos del Usuario
             </h2>
-            <p className="text-gray-600 mb-4">
-              Usted tiene derecho a:
-            </p>
+            <p className="text-gray-600 mb-4">Usted tiene derecho a:</p>
             <ul className="list-disc pl-6 text-gray-600">
               <li>Acceder a sus datos personales</li>
               <li>Solicitar la corrección de datos inexactos</li>
@@ -67,7 +67,9 @@ export default function TermsPage() {
               4. Eliminación de Datos
             </h2>
             <p className="text-gray-600 mb-4">
-              Puede solicitar la eliminación de sus datos en cualquier momento enviando un correo electrónico a soporte@econecta.io. Procesaremos su solicitud en un plazo máximo de 30 días.
+              Puede solicitar la eliminación de sus datos en cualquier momento
+              enviando un correo electrónico a soporte@econecta.io. Procesaremos
+              su solicitud en un plazo máximo de 30 días.
             </p>
           </section>
 
@@ -76,7 +78,9 @@ export default function TermsPage() {
               5. Seguridad
             </h2>
             <p className="text-gray-600 mb-4">
-              Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger sus datos personales contra el acceso, modificación, divulgación o destrucción no autorizada.
+              Implementamos medidas de seguridad técnicas y organizativas
+              apropiadas para proteger sus datos personales contra el acceso,
+              modificación, divulgación o destrucción no autorizada.
             </p>
           </section>
 
@@ -85,7 +89,9 @@ export default function TermsPage() {
               6. Contacto
             </h2>
             <p className="text-gray-600">
-              Si tiene preguntas sobre estos términos y condiciones o sobre el manejo de sus datos personales, contáctenos en soporte@econecta.io.
+              Si tiene preguntas sobre estos términos y condiciones o sobre el
+              manejo de sus datos personales, contáctenos en
+              soporte@econecta.io.
             </p>
           </section>
         </div>

@@ -7,19 +7,19 @@ import { query, where } from "firebase/firestore";
 
 import { collection, DocumentReference } from "firebase/firestore";
 
-
 interface GetUserData {
+  user_name?: string;
   perfil?: Perfil;
   captador?: Captador;
   referencia?: DocumentReference<DocumentData, DocumentData>;
-    empresa?: Empresa | undefined;
-    error?: string;
+  empresa?: Empresa | undefined;
+  error?: string;
 }
 
 export async function getUser(username: string): Promise<GetUserData> {
   if (!username) {
     return {
-     error: "Username is required",
+      error: "Username is required",
     };
   }
   try {
@@ -36,14 +36,15 @@ export async function getUser(username: string): Promise<GetUserData> {
 
     const data = snapshot.docs[0].data();
     const referencia = snapshot.docs[0].ref;
-    
+
     let empresaData: Empresa | undefined = undefined;
     if (data.empresa_ref) {
       try {
         // Si es un string, convertirlo a DocumentReference
-        const empresaRef = typeof data.empresa_ref === 'string' 
-          ? doc(db, 'empresas', data.empresa_ref.split('/')[1])
-          : data.empresa_ref;
+        const empresaRef =
+          typeof data.empresa_ref === "string"
+            ? doc(db, "empresas", data.empresa_ref.split("/")[1])
+            : data.empresa_ref;
 
         const empresaSnapshot = await getDoc(empresaRef);
         if (empresaSnapshot.exists()) {
@@ -61,8 +62,6 @@ export async function getUser(username: string): Promise<GetUserData> {
     };
   }
 }
-
-
 
 type Button = {
   label_color: string;
@@ -98,16 +97,16 @@ type Slide = {
 };
 
 export type Empresa = {
-    ODOO: {
-      db: string,
-      password: string,
-      stage_id: number,
-      type: string,
-      url: string,
-      username: string
-    },
-    prefijo: string
-}
+  ODOO: {
+    db: string;
+    password: string;
+    stage_id: number;
+    type: string;
+    url: string;
+    username: string;
+  };
+  prefijo: string;
+};
 
 export type Perfil = {
   background_path: string;

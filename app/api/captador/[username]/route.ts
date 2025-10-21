@@ -15,6 +15,8 @@ export async function POST(
 
     const userDoc = await getUser(username);
 
+    console.log({ userDoc });
+
     if (!userDoc) {
       return NextResponse.json(
         { error: "Usuario no encontrado" },
@@ -75,6 +77,42 @@ export async function POST(
       } catch (error) {
         console.error("Error al sincronizar con Odoo:", error);
         // No fallamos la petición si Odoo falla, solo registramos el error
+      }
+    }
+
+    if (userDoc.user_name?.startsWith("JAClasmercedes.")) {
+      // Enviar datos del captador a Make.com
+      try {
+        const makePayload = {
+          captador: {
+            username: username,
+          },
+          body,
+          timestamp: new Date().toISOString(),
+          ip: request.headers.get("x-forwarded-for") || "Unknown",
+        };
+
+        const makeResponse = await fetch(
+          "https://hook.us2.make.com/wwh1k2gob6w9mvpxz6b22nstypj3s78f",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(makePayload),
+          }
+        );
+
+        if (!makeResponse.ok) {
+          console.error(
+            "Error al enviar datos a Make.com:",
+            makeResponse.status,
+            makeResponse.statusText
+          );
+        }
+      } catch (error) {
+        console.error("Error al enviar datos a Make.com:", error);
+        // No fallamos la petición si Make.com falla, solo registramos el error
       }
     }
 

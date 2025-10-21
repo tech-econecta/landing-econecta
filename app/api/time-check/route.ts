@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { getTimeDebugInfo, getCurrentVenezuelaTime } from "@/app/lib/timezone";
+import { getTimeDebugInfo } from "@/app/lib/timezone";
 
 export async function GET() {
   try {
     const timeDebugInfo = getTimeDebugInfo();
-    const venezuelaTime = getCurrentVenezuelaTime();
 
     return NextResponse.json({
       success: true,

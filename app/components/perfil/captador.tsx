@@ -34,7 +34,7 @@ type CaptadorProps = {
 const Captador: React.FC<CaptadorProps> = ({
   visible,
   campos,
-  backgroundColor = "#fff",
+  backgroundColor: _backgroundColor = "#fff",
   submitColor = "#000",
   submitTextColor = "#fff",
   title = "Formulario",

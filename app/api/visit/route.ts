@@ -10,9 +10,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase";
 import { getClientIp as getIP } from "request-ip";
-import { headers } from "next/headers";
 import {
-  toVenezuelaTime,
   formatVenezuelaDate,
   getCurrentVenezuelaTime,
   getTimeDebugInfo,

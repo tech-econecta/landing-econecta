@@ -1,7 +1,6 @@
 import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
 import { Empty } from "antd";
-import { url } from "inspector";
 import { Perfil, UserData } from "../action-get.user";
 
 type CardProps = {

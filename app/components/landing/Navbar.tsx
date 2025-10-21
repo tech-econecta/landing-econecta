@@ -23,9 +23,13 @@ export default function Navbar() {
           {/* Logo y menú desktop */}
           <div className="flex items-center space-x-8">
             {/* Logo siempre visible */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <Link href="/">
-                <img className="h-10 w-auto" src="/logo.png" alt="Econecta" />
+                <img
+                  className="h-10 w-auto"
+                  src="/logo.png"
+                  alt="Econecta - Tarjetas Digitales NFC Venezuela"
+                />
               </Link>
             </div>
 
@@ -52,7 +56,7 @@ export default function Navbar() {
               </Link>
 
               <Link
-                href="/contact"
+                href="/contacto"
                 className="text-gray-600 hover:text-gray-900 px-3 py-2 text-lg font-medium"
               >
                 Contacto

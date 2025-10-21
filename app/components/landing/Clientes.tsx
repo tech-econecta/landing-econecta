@@ -1,12 +1,11 @@
 "use client";
-import { Carousel } from 'antd';
 
 export default function Clientes() {
   const logos = [
-    '/client1.png',
-    '/client2.png',
-    '/client3.png',
-    '/client4.png',
+    "/client1.png",
+    "/client2.png",
+    "/client3.png",
+    "/client4.png",
   ];
 
   return (
@@ -49,4 +48,4 @@ export default function Clientes() {
       </div>
     </div>
   );
-} 
+}

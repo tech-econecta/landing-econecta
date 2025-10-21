@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
   props: ProfileProps,
-  parent: ResolvingMetadata
+  _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const params = await props.params;
   const { username } = params;
@@ -100,7 +100,7 @@ export default async function ProfilePage(props: ProfileProps) {
       background_color,
       customFontUrl,
       brandLogoPath,
-      brandLogo,
+      brandLogo: _brandLogo,
       text_color,
       title,
       title_size,
@@ -108,7 +108,7 @@ export default async function ProfilePage(props: ProfileProps) {
       subtitle_size,
       imagen,
       image_size,
-      slide_activate,
+      slide_activate: _slide_activate,
       slides,
       buttons,
     } = perfil || {};

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
-import { db } from "@/firebase";
+import { collection, addDoc } from "firebase/firestore";
 import { getUser } from "@/app/[username]/action-get.user";
 import { OdooClient } from "@/app/lib/odoo";
 
@@ -57,20 +56,23 @@ export async function POST(
         const leadId = await odooClient.createLead(leadData);
 
         // Crear contacto si hay información suficiente
-          const contactData: { [key: string]: string } = {};
-          for (const [key, value] of Object.entries(body)) {
-            const campo = userDoc.captador?.campos.find(
-              (campo) => campo.nombre === key
-            );
-            if (campo) {
-              contactData[(campo.odoo_field_key === 'email_from' ? 'email' : campo.odoo_field_key) || key] = value as string;
-            }
+        const contactData: { [key: string]: string } = {};
+        for (const [key, value] of Object.entries(body)) {
+          const campo = userDoc.captador?.campos.find(
+            (campo) => campo.nombre === key
+          );
+          if (campo) {
+            contactData[
+              (campo.odoo_field_key === "email_from"
+                ? "email"
+                : campo.odoo_field_key) || key
+            ] = value as string;
           }
-
-          const contactId = await odooClient.createContact(contactData);
-          await odooClient.assignLeadToContact(leadId, contactId);
         }
-        catch (error) {
+
+        const contactId = await odooClient.createContact(contactData);
+        await odooClient.assignLeadToContact(leadId, contactId);
+      } catch (error) {
         console.error("Error al sincronizar con Odoo:", error);
         // No fallamos la petición si Odoo falla, solo registramos el error
       }

@@ -4,7 +4,11 @@ import Navbar from "../components/landing/Navbar";
 import Footer from "../components/landing/Footer";
 import ContactForm from "../components/landing/ContactForm";
 import Breadcrumbs from "../components/Breadcrumbs";
-
+import { Urbanist } from "next/font/google";
+const urbanist = Urbanist({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 export const metadata: Metadata = {
   title: "Contacto | Econecta - Tarjetas Digitales NFC Venezuela",
   description:
@@ -38,7 +42,7 @@ const poppins = Poppins({
 
 export default function ContactPage() {
   return (
-    <>
+    <section className={urbanist.className}>
       <Navbar />
       <div className={`min-h-screen bg-white ${poppins.className}`}>
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
@@ -64,7 +68,7 @@ export default function ContactPage() {
                 </h2>
                 <div className="space-y-6">
                   <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <svg
                         className="h-6 w-6 text-blue-600"
                         fill="none"
@@ -90,7 +94,7 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <svg
                         className="h-6 w-6 text-blue-600"
                         fill="none"
@@ -182,6 +186,6 @@ export default function ContactPage() {
         </div>
       </div>
       <Footer />
-    </>
+    </section>
   );
 }

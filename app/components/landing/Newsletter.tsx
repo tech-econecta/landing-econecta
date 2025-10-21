@@ -58,7 +58,7 @@ export default function Newsletter() {
           
           <form onSubmit={handleSubmit(onSubmit)} className="mx-auto mt-10 max-w-xl">
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-grow flex flex-col sm:flex-row gap-4 sm:gap-x-2">
+              <div className="grow flex flex-col sm:flex-row gap-4 sm:gap-x-2">
                 <input
                   {...register('name')}
                   type="text"
@@ -120,7 +120,7 @@ export default function Newsletter() {
 
           <svg
             viewBox="0 0 1024 1024"
-            className="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-x-1/2 -translate-y-1/2"
+            className="absolute left-1/2 top-1/2 -z-10 h-256 w-5xl -translate-x-1/2 -translate-y-1/2"
             aria-hidden="true"
           >
             <circle cx="512" cy="512" r="512" fill="url(#759c1415-0410-454c-8f7c-9a820de03641)" fillOpacity="0.7" />

@@ -1,10 +1,13 @@
-"use client";
-
 import { Poppins } from "next/font/google";
 import { Metadata } from "next";
 import Navbar from "../components/landing/Navbar";
 import Footer from "../components/landing/Footer";
 import Breadcrumbs from "../components/Breadcrumbs";
+import { Urbanist } from "next/font/google";
+const urbanist = Urbanist({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Sobre Nosotros | Econecta - Tarjetas Digitales NFC Venezuela",
@@ -39,7 +42,7 @@ const poppins = Poppins({
 
 export default function AboutPage() {
   return (
-    <>
+    <section className={urbanist.className}>
       <Navbar />
       <div className={`min-h-screen bg-white ${poppins.className}`}>
         <div className="max-w-4xl mx-auto px-4 py-16">
@@ -130,6 +133,6 @@ export default function AboutPage() {
         </div>
       </div>
       <Footer />
-    </>
+    </section>
   );
 }

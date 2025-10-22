@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { collection, addDoc } from "firebase/firestore";
 import { getUser } from "@/app/[username]/action-get.user";
 import { OdooClient } from "@/app/lib/odoo";
+import axios from "axios";
 
 export async function POST(
   request: Request,
@@ -92,22 +93,15 @@ export async function POST(
           ip: request.headers.get("x-forwarded-for") || "Unknown",
         };
 
-        const makeResponse = await fetch(
+        const makeResponse = await axios.post(
           "https://hook.us2.make.com/wwh1k2gob6w9mvpxz6b22nstypj3s78f",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(makePayload),
-          }
+          makePayload
         );
 
-        if (!makeResponse.ok) {
+        if (makeResponse.status !== 200) {
           console.error(
             "Error al enviar datos a Make.com:",
-            makeResponse.status,
-            makeResponse.statusText
+            makeResponse.status
           );
         }
       } catch (error) {

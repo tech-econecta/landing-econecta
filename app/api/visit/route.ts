@@ -168,15 +168,6 @@ export async function POST(request: Request) {
       offsetMinutes: timeDebugInfo.offsetMinutes,
     });
 
-    console.log(`Visita registrada para ${username}:`, {
-      ip,
-      geoInfo,
-      formattedDate,
-      venezuelaTime: venezuelaTime.toISOString(),
-      utcTime: now.toISOString(),
-      debugInfo: timeDebugInfo,
-    });
-
     return NextResponse.json({
       message: "Visita registrada correctamente",
       ip,

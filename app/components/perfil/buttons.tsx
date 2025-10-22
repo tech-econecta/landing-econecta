@@ -47,6 +47,7 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
             textDecoration: "none",
             overflow: "clip",
           }}
+          className="font-bold"
         >
           <div
             className="button"
@@ -78,12 +79,12 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
               style={{
                 color: button.label_color,
                 fontSize: "16px",
-                fontWeight: "500",
                 marginTop: "12px", // Espaciado entre la imagen y el texto
                 textAlign: "center",
                 wordBreak: "break-word",
                 whiteSpace: "normal",
               }}
+              className="font-bold"
             >
               {button.label}
             </p>

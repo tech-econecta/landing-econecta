@@ -27,8 +27,10 @@ export async function GET(
 
     const userDoc = snapshot.docs[0];
     const userData = userDoc.data();
+    console.log({ userData });
 
-    const uid = userData.uid;
+    const uid = userDoc.id;
+
     if (!uid) {
       return NextResponse.json(
         { error: "UID not found for this user" },

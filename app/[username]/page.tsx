@@ -5,6 +5,7 @@ import Captador from "../components/perfil/captador";
 import VisitTracker from "../components/VisitTracker";
 import { Empty } from "antd";
 import { getUser } from "./action-get.user";
+import { redirect } from "next/navigation";
 
 type ProfileProps = {
   params: Promise<{ username: string }>;
@@ -78,9 +79,18 @@ export async function generateMetadata(
   }
 }
 
+export const redirects = {
+  marilusgarcia: "rentahouse.marilusgarcia",
+};
+
 export default async function ProfilePage(props: ProfileProps) {
   const params = await props.params;
   const { username } = params;
+
+  // Manejar redirecciones fuera del try-catch para que NEXT_REDIRECT se propague correctamente
+  if (redirects[username as keyof typeof redirects]) {
+    redirect(`/${redirects[username as keyof typeof redirects]}`);
+  }
 
   try {
     const response = await getUser(username);

@@ -2,6 +2,8 @@ import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
 import { Empty } from "antd";
 import { Perfil, UserData } from "../action-get.user";
+import { redirects } from "../page";
+import { redirect } from "next/navigation";
 
 type CardProps = {
   params: Promise<{ username: string }>;
@@ -52,6 +54,11 @@ export async function generateMetadata(
 export default async function CardPage(props: CardProps) {
   const params = await props.params;
   const { username } = params;
+
+  // Manejar redirecciones fuera del try-catch para que NEXT_REDIRECT se propague correctamente
+  if (redirects[username as keyof typeof redirects]) {
+    redirect(`/${redirects[username as keyof typeof redirects]}/card`);
+  }
 
   try {
     const response = await fetch(

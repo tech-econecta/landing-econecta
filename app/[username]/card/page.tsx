@@ -1,9 +1,10 @@
 import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
 import { Empty } from "antd";
-import { Perfil, UserData } from "../action-get.user";
+import { UserData } from "../action-get.user";
 import { redirects } from "../page";
 import { redirect } from "next/navigation";
+import CardClient from "./CardClient";
 
 type CardProps = {
   params: Promise<{ username: string }>;
@@ -18,12 +19,13 @@ export async function generateMetadata(
   const params = await props.params;
   const { username } = params;
   const defaultMetaData = await parent;
+
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
     );
+
     if (!response.ok) {
-      // console.log(`Error fetching user data for username: ${username}`);
       return {
         title: "User Not Found",
       };
@@ -55,7 +57,7 @@ export default async function CardPage(props: CardProps) {
   const params = await props.params;
   const { username } = params;
 
-  // Manejar redirecciones fuera del try-catch para que NEXT_REDIRECT se propague correctamente
+  // Manejar redirecciones
   if (redirects[username as keyof typeof redirects]) {
     redirect(`/${redirects[username as keyof typeof redirects]}/card`);
   }
@@ -64,222 +66,23 @@ export default async function CardPage(props: CardProps) {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
     );
+
     if (!response.ok) {
       return (
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center justify-center min-h-screen">
           <Empty description="User not found" />
         </div>
       );
     }
 
-    const userData = (await response.json()) as { perfil: Perfil };
+    const userData = (await response.json()) as UserData;
+    const perfil = userData.perfil;
 
-    // Extraemos los datos desde `userData.perfil`
-    const perfil = userData.perfil || {};
-    const {
-      brandLogo,
-      brandLogoPath,
-      imagen,
-      title,
-      subtitle,
-      card, // Accedemos a `card` dentro de `perfil`,
-      customFontUrl,
-    } = perfil;
-
-    const {
-      textColor = "#000000",
-      cardColor = "#ffffff",
-      Button1Color = "#000000",
-      Button1TextColor = "#ffffff",
-      Button2Color = "#DE1E25",
-      Button2TextColor = "#ffffff",
-    } = card || {};
-
-    const familyFont: React.CSSProperties = customFontUrl
-      ? {
-          fontFamily: new URL(customFontUrl).searchParams.get(
-            "family"
-          ) as string,
-        }
-      : {};
-
-    return (
-      <html lang="en">
-        <style>{`@import url('${customFontUrl}')`}</style>
-
-        <body
-          style={{
-            margin: 0,
-            padding: 0,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-            background: "linear-gradient(to bottom, #f7f0f7, #d5e1f7)",
-            fontFamily: "Axiforma, sans-serif",
-            ...familyFont,
-          }}
-        >
-          <div
-            className="card-container"
-            style={{
-              color: textColor,
-              backgroundColor: cardColor,
-              borderRadius: "15px",
-              padding: "20px",
-              width: "300px",
-              boxShadow: "0 0 13px rgba(0, 0, 0, 0.3)",
-              textAlign: "center",
-              marginBottom: "15px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            {brandLogo && brandLogoPath && (
-              <img
-                src={brandLogoPath}
-                alt="Brand Logo"
-                className="rah-logo"
-                style={{
-                  width: "250px",
-                  marginBottom: "15px",
-                }}
-              />
-            )}
-
-            {imagen && (
-              <img
-                src={imagen}
-                alt="User Photo"
-                className="user-photo"
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                  marginBottom: "15px",
-                }}
-              />
-            )}
-
-            <h1
-              style={{
-                fontWeight: "bold",
-                fontSize: "24px",
-                margin: "0 0 10px 0px",
-                color: textColor,
-              }}
-            >
-              {title}
-            </h1>
-            {subtitle && (
-              <h2
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "normal",
-                  color: textColor,
-                  marginBottom: "20px",
-                }}
-              >
-                {subtitle}
-              </h2>
-            )}
-
-            <div
-              className="qr-code"
-              style={{
-                backgroundColor: "white",
-                borderRadius: "15px",
-                padding: "10px",
-                boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-                marginBottom: "30px",
-              }}
-            >
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://econecta.io/${username}`}
-                alt="Código QR"
-                style={{
-                  width: "110px",
-                  height: "110px",
-                  borderRadius: "10px",
-                }}
-              />
-            </div>
-          </div>
-
-          <div
-            className="action-buttons"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              width: "300px",
-              margin: "0 auto",
-            }}
-          >
-            <a
-              href={`whatsapp://send?text=Visita mi tarjeta digital: https://econecta.io/${username}`}
-              className="button green-button"
-              style={{
-                padding: "10px 20px",
-                fontSize: "16px",
-                fontWeight: "bold",
-                color: Button1TextColor,
-                backgroundColor: Button1Color,
-                borderRadius: "5px",
-                textDecoration: "none",
-                textAlign: "center",
-                width: "50%",
-                marginRight: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="white"
-                style={{ marginRight: "8px" }}
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              Compartir
-            </a>
-
-            <a
-              href={`https://econecta.io/${username}`}
-              className="button purple-button"
-              style={{
-                padding: "10px 20px",
-                fontSize: "16px",
-                fontWeight: "bold",
-                color: Button2TextColor,
-                backgroundColor: Button2Color,
-                borderRadius: "5px",
-                textDecoration: "none",
-                textAlign: "center",
-                width: "50%",
-                marginLeft: "10px",
-              }}
-            >
-              Ver Perfil
-            </a>
-          </div>
-          {/* Ícono centrado debajo de los botones */}
-          <div className="flex justify-center mt-5">
-            <img src="/Iso3.png" alt="Icon" className="h-10 w-auto" />
-          </div>
-        </body>
-      </html>
-    );
+    return <CardClient perfil={perfil} username={username} />;
   } catch (error) {
     console.error("Error fetching card data:", error);
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center min-h-screen">
         <Empty description="Error loading user card" />
       </div>
     );

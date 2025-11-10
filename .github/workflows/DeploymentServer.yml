@@ -28,9 +28,12 @@ jobs:
             # 2. Obtén el código más reciente desde GitHub
             git pull origin main
 
-            # 3. Reconstruye y reinicia los contenedores en segundo plano
+            # 3. Activa BuildKit para builds más rápidos
+            export DOCKER_BUILDKIT=1
+            export COMPOSE_DOCKER_CLI_BUILD=1
+
+            # 4. Reconstruye y reinicia los contenedores en segundo plano
             docker-compose up --build -d
 
-            # 4. (Opcional pero recomendado) Limpia imágenes de Docker viejas
+            # 5. Limpia imágenes de Docker viejas para liberar espacio
             docker image prune -f
-    

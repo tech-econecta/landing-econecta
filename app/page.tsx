@@ -15,23 +15,15 @@ const urbanist = Urbanist({
 export default function Home() {
   return (
     <section className={urbanist.className}>
-      <header>
-        <Navbar />
-      </header>
       <main className="min-h-screen">
         <article>
           <Hero />
-          <section aria-label="Características">
-            <Caracteristicas />
+
+          <section aria-label="Clientes">
+            <Clientes />
           </section>
           <section aria-label="Planes">
             <Planes />
-          </section>
-          <section aria-label="Newsletter">
-            <Newsletter />
-          </section>
-          <section aria-label="Clientes">
-            <Clientes />
           </section>
         </article>
       </main>

@@ -41,32 +41,33 @@ export default function Navbar({ logoWhite = false }: NavbarProps) {
             <div className="hidden sm:flex sm:space-x-6">
               <Link
                 href="/"
-                className={`hover:text-white px-3 py-2 text-lg font-medium transition-colors ${logoWhite ? "text-white" : "text-slate-950"}`}
+                className={`px-3 py-2 text-lg font-medium transition-colors ${logoWhite ? "text-white" : "text-slate-950 hover:text-neutral-700"}`}
               >
                 Inicio
               </Link>
-              {/*          <Link
-                href="https://econecta.shop"
-                className="text-slate-950 hover:text-white px-3 py-2 text-lg font-medium transition-colors"
-              >
-                Vende Online
-              </Link> */}
 
               <Link
                 href="/about"
-                className={`hover:text-white px-3 py-2 text-lg font-medium transition-colors ${logoWhite ? "text-white" : "text-slate-950"}`}
+                className={`px-3 py-2 text-lg font-medium transition-colors ${logoWhite ? "text-white" : "text-slate-950 hover:text-neutral-700"}`}
               >
                 Sobre Nosotros
               </Link>
 
               <Link
                 href="/contacto"
-                className={`hover:text-white px-3 py-2 text-lg font-medium transition-colors ${logoWhite ? "text-white" : "text-slate-950"}`}
+                className={`px-3 py-2 text-lg font-medium transition-colors ${logoWhite ? "text-white" : "text-slate-950 hover:text-neutral-700"}`}
               >
                 Contacto
               </Link>
             </div>
           </div>
+
+          {/*          <Link
+                href="https://econecta.shop"
+                className="text-slate-950 hover:text-white px-3 py-2 text-lg font-medium transition-colors"
+              >
+                Vende Online
+              </Link> */}
 
           {/* Botón de inicio de sesión desktop */}
           <div className="hidden sm:block">

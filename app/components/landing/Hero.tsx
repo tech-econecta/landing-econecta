@@ -128,12 +128,6 @@ export default async function Hero() {
             >
               Obtener mi tarjeta NFC
             </a>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-slate-100 backdrop-blur transition hover:bg-white/10"
-            >
-              Ver cómo funciona
-            </button>
           </div>
         </div>
 

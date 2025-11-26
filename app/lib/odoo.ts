@@ -40,9 +40,7 @@ export class OdooClient {
       );
 
       if (response.data.error) {
-        throw new Error(
-          `Error de autenticación: ${response.data.error.data.message}`
-        );
+        throw new Error(`Error de autenticación: ${response.data.error.data.message}`);
       }
 
       this.session = {
@@ -63,21 +61,15 @@ export class OdooClient {
     }
 
     try {
-      const response = await axios.post(
-        `${this.config.url}${endpoint}`,
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: this.cookies || "",
-          },
-        }
-      );
+      const response = await axios.post(`${this.config.url}${endpoint}`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: this.cookies || "",
+        },
+      });
 
       if (response.data.error) {
-        throw new Error(
-          `Error en la petición: ${response.data.error.data.message}`
-        );
+        throw new Error(`Error en la petición: ${response.data.error.data.message}`);
       }
 
       return response.data.result;
@@ -91,44 +83,38 @@ export class OdooClient {
     try {
       // Primero obtenemos las etapas disponibles si no se especifica una
       if (!leadData.stage_id) {
-        const stages = await this.makeRequest(
-          "/web/dataset/call_kw/crm.stage/search_read",
-          {
-            jsonrpc: "2.0",
-            params: {
-              model: "crm.stage",
-              method: "search_read",
-              args: [[]],
-              kwargs: {
-                fields: ["id", "name"],
-              },
+        const stages = await this.makeRequest("/web/dataset/call_kw/crm.stage/search_read", {
+          jsonrpc: "2.0",
+          params: {
+            model: "crm.stage",
+            method: "search_read",
+            args: [[]],
+            kwargs: {
+              fields: ["id", "name"],
             },
-          }
-        );
+          },
+        });
 
         // Usar la etapa configurada en la empresa o la primera disponible
         leadData.stage_id = this.config.stage_id || stages[0].id;
       }
 
       // Crear el lead
-      const leadId = await this.makeRequest(
-        "/web/dataset/call_kw/crm.lead/create",
-        {
-          jsonrpc: "2.0",
-          params: {
-            model: "crm.lead",
-            method: "create",
-            args: [
-              {
-                ...leadData,
-                type: this.config.type || leadData.type || "lead",
-                user_id: this.session?.uid,
-              },
-            ],
-            kwargs: {},
-          },
-        }
-      );
+      const leadId = await this.makeRequest("/web/dataset/call_kw/crm.lead/create", {
+        jsonrpc: "2.0",
+        params: {
+          model: "crm.lead",
+          method: "create",
+          args: [
+            {
+              ...leadData,
+              type: this.config.type || leadData.type || "lead",
+              user_id: this.session?.uid,
+            },
+          ],
+          kwargs: {},
+        },
+      });
 
       return leadId;
     } catch (error) {
@@ -139,25 +125,21 @@ export class OdooClient {
 
   async createContact(contactData: OdooContact): Promise<number> {
     try {
-      const contactId = await this.makeRequest(
-        "/web/dataset/call_kw/res.partner/create",
-        {
-          jsonrpc: "2.0",
-          params: {
-            model: "res.partner",
-            method: "create",
-            args: [
-              {
-                ...contactData,
-                is_company: contactData.is_company || false,
-                user_id: this.session?.uid,
-              },
-            ],
-            kwargs: {},
-          },
-        }
-      );
-      console.log({contactId})
+      const contactId = await this.makeRequest("/web/dataset/call_kw/res.partner/create", {
+        jsonrpc: "2.0",
+        params: {
+          model: "res.partner",
+          method: "create",
+          args: [
+            {
+              ...contactData,
+              is_company: contactData.is_company || false,
+              user_id: this.session?.uid,
+            },
+          ],
+          kwargs: {},
+        },
+      });
 
       return contactId;
     } catch (error) {
@@ -166,10 +148,7 @@ export class OdooClient {
     }
   }
 
-  async assignLeadToContact(
-    leadId: number,
-    contactId: number
-  ): Promise<boolean> {
+  async assignLeadToContact(leadId: number, contactId: number): Promise<boolean> {
     try {
       await this.makeRequest("/web/dataset/call_kw/crm.lead/write", {
         jsonrpc: "2.0",

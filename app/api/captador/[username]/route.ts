@@ -4,10 +4,7 @@ import { getUser } from "@/app/[username]/action-get.user";
 import { OdooClient } from "@/app/lib/odoo";
 import axios from "axios";
 
-export async function POST(
-  request: Request,
-  props: { params: Promise<{ username: string }> }
-) {
+export async function POST(request: Request, props: { params: Promise<{ username: string }> }) {
   const params = await props.params;
   const { username } = params;
 
@@ -16,13 +13,8 @@ export async function POST(
 
     const userDoc = await getUser(username);
 
-    console.log({ userDoc });
-
     if (!userDoc) {
-      return NextResponse.json(
-        { error: "Usuario no encontrado" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
     }
 
     if (!userDoc.referencia) {
@@ -46,9 +38,7 @@ export async function POST(
       const odooClient = new OdooClient(userDoc.empresa.ODOO);
       const leadData: { [key: string]: string } = {};
       for (const [key, value] of Object.entries(body)) {
-        const campo = userDoc.captador?.campos.find(
-          (campo) => campo.nombre === key
-        );
+        const campo = userDoc.captador?.campos.find((campo) => campo.nombre === key);
         if (campo) {
           leadData[campo.odoo_field_key || key] = value as string;
         }
@@ -61,14 +51,10 @@ export async function POST(
         // Crear contacto si hay información suficiente
         const contactData: { [key: string]: string } = {};
         for (const [key, value] of Object.entries(body)) {
-          const campo = userDoc.captador?.campos.find(
-            (campo) => campo.nombre === key
-          );
+          const campo = userDoc.captador?.campos.find((campo) => campo.nombre === key);
           if (campo) {
             contactData[
-              (campo.odoo_field_key === "email_from"
-                ? "email"
-                : campo.odoo_field_key) || key
+              (campo.odoo_field_key === "email_from" ? "email" : campo.odoo_field_key) || key
             ] = value as string;
           }
         }
@@ -99,10 +85,7 @@ export async function POST(
         );
 
         if (makeResponse.status !== 200) {
-          console.error(
-            "Error al enviar datos a Make.com:",
-            makeResponse.status
-          );
+          console.error("Error al enviar datos a Make.com:", makeResponse.status);
         }
       } catch (error) {
         console.error("Error al enviar datos a Make.com:", error);
@@ -113,9 +96,6 @@ export async function POST(
     return NextResponse.json({ message: "Registro guardado exitosamente" });
   } catch (error) {
     console.error("Error al guardar el registro:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }

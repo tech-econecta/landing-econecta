@@ -88,9 +88,10 @@ export default async function ProfilePage(props: ProfileProps) {
   const params = await props.params;
   const { username } = params;
 
-  // Manejar redirecciones fuera del try-catch para que NEXT_REDIRECT se propague correctamente
-  if (redirects[username as keyof typeof redirects]) {
-    redirect(`/${redirects[username as keyof typeof redirects]}`);
+  // Decodificar el username para manejar caracteres especiales como la "ñ"
+  const decodedUsername = decodeURIComponent(username);
+  if (redirects[decodedUsername as keyof typeof redirects]) {
+    redirect(`/${redirects[decodedUsername as keyof typeof redirects]}`);
   }
 
   try {

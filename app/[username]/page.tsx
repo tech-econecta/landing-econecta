@@ -42,14 +42,16 @@ export async function generateMetadata(
       description: perfil?.subtitle || "Perfil digital profesional en Econecta",
       openGraph: {
         title: perfil?.title || `${username} | Perfil Digital`,
-        description: perfil?.subtitle || "Perfil digital profesional en Econecta",
+        description:
+          perfil?.subtitle || "Perfil digital profesional en Econecta",
         images: [perfil?.imagen || "/og-image.jpg"],
         type: "profile",
       },
       twitter: {
         card: "summary_large_image",
         title: perfil?.title || `${username} | Perfil Digital`,
-        description: perfil?.subtitle || "Perfil digital profesional en Econecta",
+        description:
+          perfil?.subtitle || "Perfil digital profesional en Econecta",
         images: [perfil?.imagen || "/og-image.jpg"],
       },
       icons: [
@@ -79,6 +81,7 @@ export async function generateMetadata(
 
 export const redirects = {
   marilusgarcia: "rentahouse.marilusgarcia",
+  "autojac.jeanhmuñoz": "/autojac.jeanhmunoz",
 };
 
 export default async function ProfilePage(props: ProfileProps) {
@@ -172,11 +175,17 @@ export default async function ProfilePage(props: ProfileProps) {
       // 1. El fondo es oscuro (luminance < 0.5)
       // 2. Es azul con luminance < 0.7 (azules medios como #4169E1)
       // 3. Es verde/cyan con luminance < 0.65
-      return luminance < 0.5 || (isBlueish && luminance < 0.7) || (isGreenish && luminance < 0.65);
+      return (
+        luminance < 0.5 ||
+        (isBlueish && luminance < 0.7) ||
+        (isGreenish && luminance < 0.65)
+      );
     };
 
     // Seleccionar el logo según el color de fondo
-    const logoSrc = needsLightLogo(background_color || "#ffffff") ? "/Iso2.png" : "/Iso3.png";
+    const logoSrc = needsLightLogo(background_color || "#ffffff")
+      ? "/Iso2.png"
+      : "/Iso3.png";
 
     return (
       <div
@@ -263,6 +272,8 @@ export default async function ProfilePage(props: ProfileProps) {
     );
   } catch (error) {
     console.error("Error rendering profile page:", error);
-    return <div className="text-center text-red-500">Error loading user data</div>;
+    return (
+      <div className="text-center text-red-500">Error loading user data</div>
+    );
   }
 }

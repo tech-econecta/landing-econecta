@@ -81,7 +81,7 @@ export async function generateMetadata(
 
 export const redirects = {
   marilusgarcia: "rentahouse.marilusgarcia",
-  "autojac.jeanhmuñoz": "/autojac.jeanhmunoz",
+  "autojac.jeanhmuñoz": "autojac.jeanhmunoz",
 };
 
 export default async function ProfilePage(props: ProfileProps) {

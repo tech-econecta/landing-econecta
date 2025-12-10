@@ -8,8 +8,8 @@ WORKDIR /app
 # Copiar solo archivos de dependencias para aprovechar el cache de Docker
 COPY package.json package-lock.json* ./
 
-# Instalar dependencias con npm ci (más rápido y determinista)
-RUN npm ci
+# Instalar dependencias: usar npm ci si existe package-lock.json, sino npm install
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # ============================================
 # Stage 2: Builder

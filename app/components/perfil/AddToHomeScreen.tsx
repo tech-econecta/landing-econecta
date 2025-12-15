@@ -15,19 +15,60 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Detectar si está en modo standalone (PWA instalada)
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true ||
-      document.referrer.includes("android-app://");
+    // Función para detectar si está en modo PWA instalada
+    const checkStandalone = () => {
+      // Verificar display-mode (standalone, minimal-ui, fullscreen)
+      const standaloneMatch = window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches;
+      const minimalUIMatch = window.matchMedia(
+        "(display-mode: minimal-ui)"
+      ).matches;
+      const fullscreenMatch = window.matchMedia(
+        "(display-mode: fullscreen)"
+      ).matches;
 
-    setIsStandalone(standalone);
+      const isStandaloneMode =
+        standaloneMatch || minimalUIMatch || fullscreenMatch;
 
-    // Si está en modo standalone, ocultar el botón y salir
-    if (standalone) {
-      setShowInstallButton(false);
-      return;
-    }
+      // Verificar iOS standalone
+      const isIOSStandalone = (window.navigator as any).standalone === true;
+
+      // Verificar referrer de Android
+      const isAndroidApp = document.referrer.includes("android-app://");
+
+      // Verificar si está en modo ventana (Windows PWA)
+      const isWindowMode = (window as any).matchMedia?.(
+        "(display-mode: window)"
+      )?.matches;
+
+      const result =
+        isStandaloneMode || isIOSStandalone || isAndroidApp || isWindowMode;
+
+      // Debug logging
+      if (result) {
+        console.log("🔍 Modo PWA detectado:", {
+          standaloneMatch,
+          minimalUIMatch,
+          fullscreenMatch,
+          isIOSStandalone,
+          isAndroidApp,
+          isWindowMode,
+        });
+      }
+
+      return result;
+    };
+
+    // Función para actualizar el estado
+    const updateStandaloneState = () => {
+      const standalone = checkStandalone();
+      setIsStandalone(standalone);
+      setShowInstallButton(!standalone);
+    };
+
+    // Verificar inicialmente
+    updateStandaloneState();
 
     // Detectar si es iOS
     const userAgent = navigator.userAgent;
@@ -37,6 +78,7 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
     setIsIOS(iOS);
 
     // Verificar si la API de Web Share está disponible para el botón de compartir
+    // Mostrar siempre, incluso en modo standalone
     if (typeof navigator.share === "function") {
       setShowShareButton(true);
     }
@@ -46,21 +88,70 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowInstallButton(true);
+      // Solo mostrar botón si no está en modo standalone
+      if (!checkStandalone()) {
+        setShowInstallButton(true);
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // Mostrar el botón siempre si no está en modo standalone
-    // El botón funcionará con beforeinstallprompt si está disponible,
-    // o con Web Share API en iOS, o mostrará instrucciones en otros casos
-    setShowInstallButton(true);
+    // Escuchar cambios en display-mode usando MediaQueryList
+    const standaloneMediaQuery = window.matchMedia(
+      "(display-mode: standalone)"
+    );
+    const minimalUIMediaQuery = window.matchMedia("(display-mode: minimal-ui)");
+    const fullscreenMediaQuery = window.matchMedia(
+      "(display-mode: fullscreen)"
+    );
+
+    const handleDisplayModeChange = () => {
+      updateStandaloneState();
+    };
+
+    // Agregar listeners para cambios de display-mode
+    if (standaloneMediaQuery.addEventListener) {
+      standaloneMediaQuery.addEventListener("change", handleDisplayModeChange);
+      minimalUIMediaQuery.addEventListener("change", handleDisplayModeChange);
+      fullscreenMediaQuery.addEventListener("change", handleDisplayModeChange);
+    } else {
+      // Fallback para navegadores antiguos
+      standaloneMediaQuery.addListener(handleDisplayModeChange);
+      minimalUIMediaQuery.addListener(handleDisplayModeChange);
+      fullscreenMediaQuery.addListener(handleDisplayModeChange);
+    }
+
+    // Verificar periódicamente si cambia a modo standalone (por si se instala mientras está abierto)
+    const checkInterval = setInterval(() => {
+      updateStandaloneState();
+    }, 500); // Verificar cada medio segundo para respuesta más rápida
 
     return () => {
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt
       );
+      clearInterval(checkInterval);
+
+      // Remover listeners de media queries
+      if (standaloneMediaQuery.removeEventListener) {
+        standaloneMediaQuery.removeEventListener(
+          "change",
+          handleDisplayModeChange
+        );
+        minimalUIMediaQuery.removeEventListener(
+          "change",
+          handleDisplayModeChange
+        );
+        fullscreenMediaQuery.removeEventListener(
+          "change",
+          handleDisplayModeChange
+        );
+      } else {
+        standaloneMediaQuery.removeListener(handleDisplayModeChange);
+        minimalUIMediaQuery.removeListener(handleDisplayModeChange);
+        fullscreenMediaQuery.removeListener(handleDisplayModeChange);
+      }
     };
   }, []);
 
@@ -177,8 +268,9 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
     }
   };
 
-  // No mostrar nada si está en modo standalone (PWA instalada) o no hay funcionalidad disponible
-  if (isStandalone || (!showInstallButton && !showShareButton)) {
+  // No mostrar nada solo si no hay ningún botón disponible
+  // El botón de compartir se muestra siempre (incluso en modo standalone)
+  if (!showInstallButton && !showShareButton) {
     return null;
   }
 

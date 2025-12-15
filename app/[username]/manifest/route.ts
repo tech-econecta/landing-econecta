@@ -20,7 +20,7 @@ export async function GET(
         description: "Perfil digital en Econecta",
         start_url: `/${username}`,
         scope: `/${username}/`,
-        display: "standalone",
+        display: "browser",
         background_color: "#ffffff",
         theme_color: "#000000",
         icons: [
@@ -40,12 +40,7 @@ export async function GET(
     }
 
     const { perfil } = response;
-    const {
-      title,
-      subtitle,
-      imagen,
-      background_color,
-    } = perfil;
+    const { title, subtitle, imagen, background_color } = perfil;
 
     const iconUrl = imagen || "/favicon.ico";
     const themeColor = background_color || "#ffffff";
@@ -58,7 +53,7 @@ export async function GET(
       description: subtitle || "Perfil digital profesional en Econecta",
       start_url: `/${username}`,
       scope: `/${username}/`,
-      display: "standalone",
+      display: "browser",
       orientation: "portrait",
       background_color: backgroundColor,
       theme_color: themeColor,
@@ -81,6 +76,11 @@ export async function GET(
           type: "image/png",
           purpose: "apple-touch-icon",
         },
+        {
+          src: iconUrl,
+          sizes: "180x180",
+          type: "image/png",
+        },
       ],
       categories: ["business", "social", "productivity"],
       lang: "es",
@@ -102,7 +102,7 @@ export async function GET(
       description: "Perfil digital en Econecta",
       start_url: `/${username}`,
       scope: `/${username}/`,
-      display: "standalone",
+      display: "browser",
       background_color: "#ffffff",
       theme_color: "#000000",
       icons: [
@@ -121,4 +121,3 @@ export async function GET(
     });
   }
 }
-

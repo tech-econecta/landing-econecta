@@ -72,7 +72,10 @@ export async function generateMetadata(
       other: {
         "theme-color": perfil?.background_color || "#ffffff",
         "apple-mobile-web-app-capable": "yes",
-        "apple-mobile-web-app-status-bar-style": "default",
+        "apple-mobile-web-app-status-bar-style": perfil?.background_color
+          ? "black-translucent"
+          : "default",
+        "apple-mobile-web-app-title": perfil?.title || username,
       },
     };
   } catch (error) {

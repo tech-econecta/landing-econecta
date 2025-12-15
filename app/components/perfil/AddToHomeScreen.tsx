@@ -13,15 +13,20 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   const [showShareButton, setShowShareButton] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
 
   useEffect(() => {
-    // Detectar si es iOS
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    // Detectar si es iOS (incluyendo iPadOS)
+    const iOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     setIsIOS(iOS);
 
     // Verificar si la PWA ya está instalada
-    if (window.matchMedia("(display-mode: standalone)").matches) {
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true;
+
+    if (isStandalone) {
       setIsInstalled(true);
       return;
     }
@@ -49,7 +54,11 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
 
     // Verificar si ya está instalado (para navegadores que no disparan beforeinstallprompt después de instalar)
     const checkIfInstalled = () => {
-      if (window.matchMedia("(display-mode: standalone)").matches) {
+      const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as any).standalone === true;
+
+      if (isStandalone) {
         setIsInstalled(true);
         setShowInstallButton(false);
       }
@@ -85,7 +94,7 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   };
 
   const handleInstallClick = async () => {
-    // Si hay prompt disponible (PWA lista para instalar), usarlo
+    // Si hay prompt disponible (Android/Chrome PWA), usarlo
     if (deferredPrompt) {
       try {
         // Mostrar el prompt de instalación nativo del navegador
@@ -110,14 +119,26 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
       return;
     }
 
-    // Si no hay prompt disponible pero es iOS, mostrar instrucciones
-    if (isIOS) {
-      setShowInstructions(true);
-    }
-  };
+    // Para iOS, usar Web Share API para abrir el menú nativo
+    // Desde ahí el usuario puede seleccionar "Añadir a pantalla de inicio"
+    if (isIOS && typeof navigator.share === "function") {
+      try {
+        const currentUrl = window.location.href;
+        const pageTitle = document.title;
 
-  const closeInstructions = () => {
-    setShowInstructions(false);
+        await navigator.share({
+          title: pageTitle,
+          text: `Instalar ${pageTitle} como app`,
+          url: currentUrl,
+        });
+      } catch (error: any) {
+        // Si el usuario cancela, no hacer nada
+        if (error.name !== "AbortError") {
+          console.error("Error al compartir:", error);
+        }
+      }
+      return;
+    }
   };
 
   // No mostrar si la PWA ya está instalada o no hay funcionalidad disponible
@@ -232,109 +253,6 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
           </button>
         )}
       </div>
-
-      {/* Modal de instrucciones */}
-      {showInstructions && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "20px",
-          }}
-          onClick={closeInstructions}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              borderRadius: "16px",
-              padding: "24px",
-              maxWidth: "400px",
-              width: "100%",
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3
-              style={{
-                fontSize: "20px",
-                fontWeight: "bold",
-                marginBottom: "16px",
-                color: "#000",
-              }}
-            >
-              Instalar App
-            </h3>
-            {isIOS ? (
-              <div style={{ color: "#333", lineHeight: "1.6" }}>
-                <p style={{ marginBottom: "12px" }}>
-                  <strong>En iPhone/iPad:</strong>
-                </p>
-                <ol style={{ paddingLeft: "20px", marginBottom: "16px" }}>
-                  <li>
-                    Toca el botón de compartir (cuadrado con flecha) en la parte
-                    inferior
-                  </li>
-                  <li>
-                    Desplázate hacia abajo y selecciona "Añadir a pantalla de
-                    inicio"
-                  </li>
-                  <li>Confirma el nombre y toca "Añadir"</li>
-                </ol>
-                <p
-                  style={{ marginTop: "12px", fontSize: "14px", color: "#666" }}
-                >
-                  La app se instalará en tu pantalla de inicio y funcionará como
-                  una aplicación nativa.
-                </p>
-              </div>
-            ) : (
-              <div style={{ color: "#333", lineHeight: "1.6" }}>
-                <p style={{ marginBottom: "12px" }}>
-                  <strong>Instalación automática:</strong>
-                </p>
-                <p style={{ marginBottom: "12px" }}>
-                  Si el botón de instalación no aparece, asegúrate de:
-                </p>
-                <ul style={{ paddingLeft: "20px", marginBottom: "16px" }}>
-                  <li>Estar usando Chrome o Edge en Android</li>
-                  <li>Haber visitado la página al menos una vez</li>
-                  <li>No tener la app ya instalada</li>
-                </ul>
-                <p
-                  style={{ marginTop: "12px", fontSize: "14px", color: "#666" }}
-                >
-                  La app se instalará automáticamente cuando esté lista.
-                </p>
-              </div>
-            )}
-            <button
-              onClick={closeInstructions}
-              style={{
-                width: "100%",
-                padding: "12px",
-                backgroundColor: "#000",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                fontSize: "16px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                marginTop: "16px",
-              }}
-            >
-              Entendido
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 };

@@ -13,81 +13,135 @@ export async function GET(
   const scope = `/${username}`;
 
   const serviceWorkerCode = `
-// Service Worker para PWA del perfil: ${username}
+// Service Worker optimizado para modo browser - buena UX en móviles
+// Perfil: ${username}
 const CACHE_NAME = "${cacheName}";
 const SCOPE = "${scope}";
+const CACHE_VERSION = "v1";
+const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000; // 7 días
 
-// Instalación del Service Worker
+// Recursos estáticos que se cachean en la instalación
+const STATIC_CACHE_URLS = [
+  "/favicon.ico",
+];
+
+// Instalación del Service Worker - ligera y rápida
 self.addEventListener("install", (event) => {
   console.log("Service Worker instalado para: ${username}");
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      // Cachear recursos básicos del perfil
-      return cache.addAll([
-        SCOPE,
-        "/favicon.ico",
-      ]);
-    })
-  );
-  self.skipWaiting(); // Activar inmediatamente
+  // No cachear nada en la instalación para mantenerlo ligero
+  // Solo activar inmediatamente
+  self.skipWaiting();
 });
 
 // Activación del Service Worker
 self.addEventListener("activate", (event) => {
   console.log("Service Worker activado para: ${username}");
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          // Solo eliminar caches de otros perfiles, mantener el cache de este perfil
-          if (cacheName.startsWith("econecta-") && cacheName !== CACHE_NAME) {
-            // Verificar si el cache es de otro perfil
-            const otherUsername = cacheName.match(/econecta-(.+?)-v/)?.[1];
-            if (otherUsername && otherUsername !== "${username}") {
-              return caches.delete(cacheName);
+    Promise.all([
+      // Limpiar caches antiguos
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((name) => {
+            if (name.startsWith("econecta-") && name !== CACHE_NAME) {
+              const otherUsername = name.match(/econecta-(.+?)-v/)?.[1];
+              if (otherUsername && otherUsername !== "${username}") {
+                return caches.delete(name);
+              }
             }
-          }
-        })
-      );
-    })
+            // Limpiar caches muy antiguos
+            if (name === CACHE_NAME) {
+              return caches.open(name).then((cache) => {
+                return cache.keys().then((keys) => {
+                  return Promise.all(
+                    keys.map((key) => {
+                      return cache.match(key).then((response) => {
+                        if (response) {
+                          const cachedDate = response.headers.get("sw-cached-date");
+                          if (cachedDate) {
+                            const age = Date.now() - parseInt(cachedDate);
+                            if (age > MAX_CACHE_AGE) {
+                              return cache.delete(key);
+                            }
+                          }
+                        }
+                      });
+                    })
+                  );
+                });
+              });
+            }
+          })
+        );
+      }),
+      self.clients.claim() // Tomar control inmediatamente
+    ])
   );
-  return self.clients.claim(); // Tomar control inmediatamente
 });
 
-// Estrategia: Network First, luego Cache
+// Estrategia optimizada para móviles: Network First con fallback a cache
+// Cachea solo imágenes y recursos estáticos, NO cachea HTML dinámico
 self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  
   // Solo procesar peticiones dentro del scope de este perfil
-  if (!event.request.url.includes(SCOPE) && !event.request.url.includes("/favicon.ico")) {
-    return; // Dejar que otros service workers manejen sus propias rutas
+  if (!url.pathname.startsWith(SCOPE) && !url.pathname.includes("/favicon.ico")) {
+    return; // Dejar pasar sin interceptar
   }
 
-  // Solo cachear peticiones GET
+  // Solo procesar peticiones GET
   if (event.request.method !== "GET") {
     return;
   }
 
+  // No cachear HTML dinámico - siempre obtener la versión más reciente
+  if (event.request.headers.get("accept")?.includes("text/html")) {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          // Solo usar cache si la red falla completamente
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Para imágenes y recursos estáticos: Network First con cache
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Verificar si la respuesta es válida
-        if (!response || response.status !== 200 || response.type !== "basic") {
-          return response;
+        // Solo cachear respuestas exitosas de imágenes y recursos estáticos
+        if (
+          response.status === 200 &&
+          response.type === "basic" &&
+          (event.request.destination === "image" ||
+           event.request.url.match(/\\.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|eot)$/i))
+        ) {
+          const responseToCache = response.clone();
+          // Agregar timestamp para limpieza posterior
+          const headers = new Headers(responseToCache.headers);
+          headers.set("sw-cached-date", Date.now().toString());
+          
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, new Response(responseToCache.body, {
+              status: responseToCache.status,
+              statusText: responseToCache.statusText,
+              headers: headers
+            }));
+          });
         }
-
-        // Clonar la respuesta
-        const responseToCache = response.clone();
-
-        // Guardar en cache específico de este perfil
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
         return response;
       })
       .catch(() => {
-        // Si falla la red, intentar desde el cache
-        return caches.match(event.request).then((response) => {
-          return response || new Response("Offline", { status: 503 });
+        // Si falla la red, intentar desde el cache (solo para recursos estáticos)
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // Si no hay cache, devolver respuesta de error
+          return new Response("Recurso no disponible", {
+            status: 503,
+            statusText: "Service Unavailable"
+          });
         });
       })
   );

@@ -206,8 +206,8 @@ export default async function ProfilePage(props: ProfileProps) {
         className={`min-h-screen flex flex-col items-center pt-4 pb-4`}
         style={{ ...backgroundStyle, fontFamily }}
       >
-        {/* Service Worker deshabilitado - no se necesita para PWA básica */}
-        {/* <ServiceWorkerRegistration /> */}
+        {/* Registrar Service Worker para PWA - optimizado para móviles */}
+        <ServiceWorkerRegistration />
         {/* Componente para registrar visitas desde el cliente */}
         <VisitTracker username={username} />
         {customFontUrl && <style>{`@import url('${customFontUrl}')`}</style>}

@@ -69,13 +69,50 @@ export default function ServiceWorkerRegistration() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Service Workers deshabilitados - limpiar cualquier service worker existente
-    // pero NO registrar nuevos
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      // Limpiar automáticamente cualquier service worker existente
-      cleanupServiceWorkers().then(() => {
-        console.log("✅ Service Workers deshabilitados - no se registrarán nuevos");
-      });
+    if (
+      typeof window !== "undefined" &&
+      "serviceWorker" in navigator
+    ) {
+      // Extraer el username de la ruta (ej: /username -> username)
+      const pathParts = pathname?.split("/").filter(Boolean);
+      const username = pathParts?.[0];
+
+      // Solo registrar service worker si estamos en una página de perfil
+      if (username && pathname?.startsWith(`/${username}`)) {
+        const swUrl = `/${username}/sw`;
+        const swScope = `/${username}`;
+
+        // Verificar si ya existe un service worker registrado para este scope
+        navigator.serviceWorker
+          .getRegistration(swScope)
+          .then((existingRegistration) => {
+            if (existingRegistration) {
+              // Ya existe un service worker registrado
+              return existingRegistration;
+            } else {
+              // No existe, registrar uno nuevo
+              return navigator.serviceWorker.register(swUrl, {
+                scope: swScope,
+              });
+            }
+          })
+          .then((registration) => {
+            if (registration) {
+              // Verificar actualizaciones periódicamente (solo una vez)
+              if (!(registration as any)._updateInterval) {
+                (registration as any)._updateInterval = setInterval(() => {
+                  registration.update();
+                }, 300000); // Cada 5 minutos (más espaciado para móviles)
+              }
+            }
+          })
+          .catch((error) => {
+            console.error(
+              `Error al registrar Service Worker para ${username}:`,
+              error
+            );
+          });
+      }
     }
   }, [pathname]);
 

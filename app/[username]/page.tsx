@@ -4,6 +4,7 @@ import AppCarousel from "../components/perfil/slides";
 import Captador from "../components/perfil/captador";
 import VisitTracker from "../components/VisitTracker";
 import AddToHomeScreen from "../components/perfil/AddToHomeScreen";
+import ServiceWorkerRegistration from "../components/perfil/ServiceWorkerRegistration";
 import { Empty } from "antd";
 import { getUser } from "./action-get.user";
 import { redirect } from "next/navigation";
@@ -38,9 +39,12 @@ export async function generateMetadata(
 
     const { perfil = {} } = (response || {}) as any;
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://econecta.io";
+
     return {
       title: perfil?.title || `${username} | Perfil Digital`,
       description: perfil?.subtitle || "Perfil digital profesional en Econecta",
+      manifest: `/${username}/manifest`,
       openGraph: {
         title: perfil?.title || `${username} | Perfil Digital`,
         description:
@@ -65,6 +69,11 @@ export async function generateMetadata(
           url: perfil?.imagen || "/favicon.ico",
         },
       ],
+      other: {
+        "theme-color": perfil?.background_color || "#ffffff",
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-status-bar-style": "default",
+      },
     };
   } catch (error) {
     console.error("Error generating metadata:", error);
@@ -194,6 +203,8 @@ export default async function ProfilePage(props: ProfileProps) {
         className={`min-h-screen flex flex-col items-center pt-4 pb-4`}
         style={{ ...backgroundStyle, fontFamily }}
       >
+        {/* Registrar Service Worker para PWA */}
+        <ServiceWorkerRegistration />
         {/* Componente para registrar visitas desde el cliente */}
         <VisitTracker username={username} />
         {customFontUrl && <style>{`@import url('${customFontUrl}')`}</style>}

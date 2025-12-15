@@ -3,6 +3,7 @@ import Buttons from "../components/perfil/buttons";
 import AppCarousel from "../components/perfil/slides";
 import Captador from "../components/perfil/captador";
 import VisitTracker from "../components/VisitTracker";
+import AddToHomeScreen from "../components/perfil/AddToHomeScreen";
 import { Empty } from "antd";
 import { getUser } from "./action-get.user";
 import { redirect } from "next/navigation";
@@ -247,6 +248,8 @@ export default async function ProfilePage(props: ProfileProps) {
         )}
         {/* Usa el componente Buttons */}
         <Buttons buttonsData={buttons || []} />
+        {/* Botón para agregar a pantalla de inicio */}
+        <AddToHomeScreen textColor={text_color} />
         {/* Ícono centrado debajo de los botones */}
         <div className="flex justify-center mt-4">
           <img

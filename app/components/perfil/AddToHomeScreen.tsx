@@ -11,32 +11,33 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showButton, setShowButton] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
+  const [canShare, setCanShare] = useState(false);
 
   useEffect(() => {
     // Detectar si es iOS
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(iOS);
 
-    // Detectar si ya está instalado como PWA
-    const standalone = window.matchMedia("(display-mode: standalone)").matches;
-    setIsStandalone(standalone);
-
-    // Si ya está instalado, no mostrar el botón
-    if (standalone) {
-      return;
+    // Verificar si la API de Web Share está disponible
+    if (typeof navigator.share === "function") {
+      setCanShare(true);
+      setShowButton(true);
     }
 
-    // Solo mostrar el botón si la instalación automática está disponible
-    // Esto solo ocurre cuando el navegador dispara el evento beforeinstallprompt
+    // Para Android/Chrome: escuchar el evento beforeinstallprompt
+    // Esto crea un acceso directo (no necesariamente una PWA completa)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Solo mostrar el botón cuando realmente tenemos la capacidad de instalar automáticamente
       setShowButton(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    // Si es iOS o tiene Web Share, mostrar el botón
+    if (iOS || typeof navigator.share === "function") {
+      setShowButton(true);
+    }
 
     return () => {
       window.removeEventListener(
@@ -47,32 +48,65 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   }, []);
 
   const handleInstallClick = async () => {
-    // Solo ejecutar si hay prompt disponible (instalación automática disponible)
-    if (!deferredPrompt) {
+    const currentUrl = window.location.href;
+    const pageTitle = document.title;
+
+    // Intentar usar Web Share API primero (más universal para crear accesos directos)
+    if (canShare && typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title: pageTitle,
+          text: `Acceso directo a ${pageTitle}`,
+          url: currentUrl,
+        });
+        // Después de compartir, el usuario puede crear el acceso directo desde el menú
+        return;
+      } catch (error: any) {
+        // Si el usuario cancela, no hacer nada
+        if (error.name === "AbortError") {
+          return;
+        }
+        console.error("Error al compartir:", error);
+      }
+    }
+
+    // Si hay prompt disponible (Android/Chrome), usarlo para crear acceso directo
+    if (deferredPrompt) {
+      try {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+
+        if (outcome === "accepted") {
+          console.log("Acceso directo creado");
+        } else {
+          console.log("Creación de acceso directo cancelada");
+        }
+
+        setDeferredPrompt(null);
+        setShowButton(false);
+      } catch (error) {
+        console.error("Error al crear acceso directo:", error);
+      }
       return;
     }
 
-    try {
-      // Mostrar el prompt de instalación automáticamente
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-
-      if (outcome === "accepted") {
-        console.log("Instalación aceptada");
-      } else {
-        console.log("Instalación rechazada");
+    // Para iOS, intentar abrir el menú de compartir manualmente
+    if (isIOS && typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title: pageTitle,
+          url: currentUrl,
+        });
+      } catch (error: any) {
+        if (error.name !== "AbortError") {
+          console.error("Error:", error);
+        }
       }
-
-      setDeferredPrompt(null);
-      setShowButton(false);
-    } catch (error) {
-      console.error("Error al mostrar el prompt:", error);
-      setShowButton(false);
     }
   };
 
   // No mostrar si ya está instalado
-  if (isStandalone || !showButton) {
+  if (!showButton) {
     return null;
   }
 
@@ -128,7 +162,7 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
             </>
           )}
         </svg>
-        <span>Agregar a pantalla de inicio</span>
+        <span>Guardar acceso directo</span>
       </button>
     </div>
   );

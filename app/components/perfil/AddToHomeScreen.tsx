@@ -45,18 +45,6 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
       const result =
         isStandaloneMode || isIOSStandalone || isAndroidApp || isWindowMode;
 
-      // Debug logging
-      if (result) {
-        console.log("🔍 Modo PWA detectado:", {
-          standaloneMatch,
-          minimalUIMatch,
-          fullscreenMatch,
-          isIOSStandalone,
-          isAndroidApp,
-          isWindowMode,
-        });
-      }
-
       return result;
     };
 
@@ -193,25 +181,19 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
       }
     }
 
-    // Para iOS, usar Web Share API para abrir el menú nativo
-    // Desde ahí el usuario puede seleccionar "Añadir a pantalla de inicio"
-    if (isIOS && typeof navigator.share === "function") {
-      try {
-        const currentUrl = window.location.href;
-        const pageTitle = document.title;
+    // Para iOS, mostrar instrucciones claras ya que no hay API de instalación directa
+    // En iOS, el usuario debe usar el botón de compartir de Safari manualmente
+    if (isIOS) {
+      const instructions = `Para instalar esta app en tu iPhone:
 
-        await navigator.share({
-          title: pageTitle,
-          text: `Instalar ${pageTitle} como app`,
-          url: currentUrl,
-        });
-        return;
-      } catch (error: any) {
-        // Si el usuario cancela, no hacer nada
-        if (error.name !== "AbortError") {
-          console.error("Error al compartir:", error);
-        }
-      }
+1. Toca el botón de compartir (📤) en la parte inferior de Safari
+2. Desplázate hacia abajo en el menú de compartir
+3. Toca "Añadir a pantalla de inicio"
+4. Toca "Añadir" para confirmar
+
+La app aparecerá como un icono en tu pantalla de inicio.`;
+
+      alert(instructions);
       return;
     }
 

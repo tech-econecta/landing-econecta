@@ -8,70 +8,46 @@ interface AddToHomeScreenProps {
 const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   textColor = "#000000",
 }) => {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
+  const [showInstallButton, setShowInstallButton] = useState(true);
   const [showShareButton, setShowShareButton] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isChrome, setIsChrome] = useState(false);
+  const [isFirefox, setIsFirefox] = useState(false);
+  const [isSafari, setIsSafari] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Detectar si es iOS (incluyendo iPadOS)
-    const iOS =
-      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    setIsIOS(iOS);
-
-    // Verificar si la PWA ya está instalada
-    const isStandalone =
+    // Detectar si está en modo standalone (PWA instalada)
+    const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true;
+      (window.navigator as any).standalone === true ||
+      document.referrer.includes("android-app://");
 
-    if (isStandalone) {
-      setIsInstalled(true);
+    setIsStandalone(standalone);
+
+    // Si está en modo standalone, ocultar el botón y salir
+    if (standalone) {
+      setShowInstallButton(false);
       return;
     }
+
+    // Detectar el navegador
+    const userAgent = navigator.userAgent;
+    const iOS =
+      /iPad|iPhone|iPod/.test(userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    setIsIOS(iOS);
+    setIsChrome(/Chrome/.test(userAgent) && !/Edg|OPR/.test(userAgent));
+    setIsFirefox(/Firefox/.test(userAgent));
+    setIsSafari(/Safari/.test(userAgent) && !/Chrome/.test(userAgent));
 
     // Verificar si la API de Web Share está disponible para el botón de compartir
     if (typeof navigator.share === "function") {
       setShowShareButton(true);
     }
 
-    // Escuchar el evento beforeinstallprompt (PWA)
-    // Este evento se dispara cuando la PWA cumple los requisitos de instalación
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstallButton(true);
-    };
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    // En iOS, mostrar el botón siempre (usará instrucciones manuales)
-    // En otros dispositivos, solo mostrar cuando haya deferredPrompt
-    if (iOS) {
-      setShowInstallButton(true);
-    }
-
-    // Verificar si ya está instalado (para navegadores que no disparan beforeinstallprompt después de instalar)
-    const checkIfInstalled = () => {
-      const isStandalone =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true;
-
-      if (isStandalone) {
-        setIsInstalled(true);
-        setShowInstallButton(false);
-      }
-    };
-
-    checkIfInstalled();
-
-    return () => {
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt
-      );
-    };
+    // Mostrar el botón si no está en modo standalone
+    setShowInstallButton(true);
   }, []);
 
   const handleShareClick = async () => {
@@ -94,62 +70,93 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   };
 
   const handleInstallClick = async () => {
-    // Si hay prompt disponible (Android/Chrome PWA), usarlo
-    if (deferredPrompt) {
-      try {
-        // Mostrar el prompt de instalación nativo del navegador
-        await deferredPrompt.prompt();
+    const currentUrl = window.location.href;
+    const pageTitle = document.title;
 
-        // Esperar a que el usuario responda
-        const { outcome } = await deferredPrompt.userChoice;
-
-        if (outcome === "accepted") {
-          console.log("PWA instalada exitosamente");
-          setIsInstalled(true);
-        } else {
-          console.log("Instalación de PWA cancelada por el usuario");
-        }
-
-        // Limpiar el prompt (solo se puede usar una vez)
-        setDeferredPrompt(null);
-        setShowInstallButton(false);
-      } catch (error) {
-        console.error("Error al instalar PWA:", error);
-      }
-      return;
-    }
-
-    // Para iOS, usar Web Share API para abrir el menú nativo
-    // Desde ahí el usuario puede seleccionar "Añadir a pantalla de inicio"
+    // Método 1: Para iOS, usar Web Share API que permite añadir a pantalla de inicio
     if (isIOS && typeof navigator.share === "function") {
       try {
-        const currentUrl = window.location.href;
-        const pageTitle = document.title;
-
         await navigator.share({
           title: pageTitle,
-          text: `Instalar ${pageTitle} como app`,
+          text: `Guardar ${pageTitle}`,
           url: currentUrl,
         });
+        return;
       } catch (error: any) {
-        // Si el usuario cancela, no hacer nada
         if (error.name !== "AbortError") {
           console.error("Error al compartir:", error);
         }
       }
-      return;
     }
+
+    // Método 2: Intentar usar window.external.AddFavorite (IE/Edge antiguo)
+    if (
+      typeof (window as any).external !== "undefined" &&
+      (window as any).external.AddFavorite
+    ) {
+      try {
+        (window as any).external.AddFavorite(currentUrl, pageTitle);
+        return;
+      } catch (error) {
+        // Si falla, continuar con otros métodos
+      }
+    }
+
+    // Método 3: Intentar usar sidebar.addPanel (Firefox antiguo)
+    if (
+      typeof (window as any).sidebar !== "undefined" &&
+      (window as any).sidebar.addPanel
+    ) {
+      try {
+        (window as any).sidebar.addPanel(pageTitle, currentUrl, "");
+        return;
+      } catch (error) {
+        // Si falla, continuar con otros métodos
+      }
+    }
+
+    // Método 4: Para móviles Android, intentar usar Web Share API
+    if (!isIOS && typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title: pageTitle,
+          text: `Guardar ${pageTitle}`,
+          url: currentUrl,
+        });
+        return;
+      } catch (error: any) {
+        if (error.name !== "AbortError") {
+          // Si falla, mostrar instrucciones
+        }
+      }
+    }
+
+    // Método 5: Para desktop, mostrar instrucciones claras
+    const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+    const shortcut = isMac ? "Cmd+D" : "Ctrl+D";
+
+    const instructions = isIOS
+      ? "Toca el botón de compartir (📤) y selecciona 'Añadir a pantalla de inicio'"
+      : isChrome
+        ? `Presiona ${shortcut} para guardar esta página como favorito\n\nO haz clic en el menú (⋮) → Marcadores → Marcar esta página`
+        : isFirefox
+          ? `Presiona ${shortcut} para guardar esta página como marcador\n\nO haz clic en el menú (☰) → Marcadores → Añadir marcador`
+          : isSafari
+            ? `Presiona ${shortcut} para guardar esta página como favorito\n\nO haz clic en el menú → Marcadores → Añadir marcador`
+            : `Presiona ${shortcut} para guardar esta página como favorito\n\nO usa el menú del navegador para añadir a favoritos`;
+
+    alert(`Para guardar esta página:\n\n${instructions}`);
   };
 
-  // No mostrar si la PWA ya está instalada o no hay funcionalidad disponible
-  if (isInstalled || (!showInstallButton && !showShareButton)) {
+  // No mostrar nada si está en modo standalone (PWA instalada)
+  if (isStandalone) {
     return null;
   }
 
   return (
     <>
       <div className="flex justify-center gap-3 mt-6 mb-4 px-4 flex-wrap">
-        {/* Botón para crear acceso directo */}
+        {/* Botón para crear acceso directo - oculto si está en modo standalone */}
         {showInstallButton && (
           <button
             onClick={handleInstallClick}
@@ -187,19 +194,7 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              {isIOS ? (
-                <>
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                  <polyline points="16 6 12 2 8 6" />
-                  <line x1="12" y1="2" x2="12" y2="15" />
-                </>
-              ) : (
-                <>
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </>
-              )}
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
             </svg>
             <span>Guardar acceso directo</span>
           </button>

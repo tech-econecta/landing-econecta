@@ -14,10 +14,12 @@ export async function GET(
     if (response.error || !response.perfil) {
       // Manifest por defecto si no se encuentra el usuario
       const defaultManifest = {
+        id: `/${username}`,
         name: "Econecta",
         short_name: "Econecta",
         description: "Perfil digital en Econecta",
         start_url: `/${username}`,
+        scope: `/${username}/`,
         display: "standalone",
         background_color: "#ffffff",
         theme_color: "#000000",
@@ -50,11 +52,12 @@ export async function GET(
     const backgroundColor = background_color || "#ffffff";
 
     const manifest = {
+      id: `/${username}`,
       name: title || `${username} | Perfil Digital`,
       short_name: title || username,
       description: subtitle || "Perfil digital profesional en Econecta",
       start_url: `/${username}`,
-      scope: `/${username}`,
+      scope: `/${username}/`,
       display: "standalone",
       orientation: "portrait",
       background_color: backgroundColor,
@@ -93,10 +96,12 @@ export async function GET(
     console.error("Error generating manifest:", error);
     // Manifest por defecto en caso de error
     const defaultManifest = {
+      id: `/${username}`,
       name: "Econecta",
       short_name: "Econecta",
       description: "Perfil digital en Econecta",
       start_url: `/${username}`,
+      scope: `/${username}/`,
       display: "standalone",
       background_color: "#ffffff",
       theme_color: "#000000",

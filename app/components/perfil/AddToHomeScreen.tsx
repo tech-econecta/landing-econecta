@@ -256,17 +256,23 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
     }
   };
 
-  // No mostrar nada solo si no hay ningún botón disponible
-  // El botón de compartir se muestra siempre (incluso en modo standalone)
-  if (!showInstallButton && !showShareButton) {
+  // Determinar qué botón mostrar: solo uno por dispositivo
+  // Prioridad: botón de instalación > botón de compartir
+  const shouldShowInstallButton = !isIOS && showInstallButton;
+  const shouldShowShareButton =
+    (isIOS && showShareButton) ||
+    (!isIOS && showShareButton && !showInstallButton);
+
+  // No mostrar nada si no hay ningún botón disponible
+  if (!shouldShowInstallButton && !shouldShowShareButton) {
     return null;
   }
 
   return (
     <>
       <div className="flex justify-center gap-3 mt-6 mb-4 px-4 flex-wrap">
-        {/* En iOS, mostrar primero el botón de compartir */}
-        {isIOS && showShareButton && (
+        {/* Botón para iOS: usar compartir para añadir a pantalla de inicio */}
+        {shouldShowShareButton && isIOS && (
           <button
             onClick={handleShareClick}
             style={{
@@ -309,12 +315,12 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
-            <span>Compartir</span>
+            <span>Guardar acceso directo</span>
           </button>
         )}
 
-        {/* Botón para instalar PWA en modo browser (solo Android/otros, no iOS) */}
-        {!isIOS && showInstallButton && (
+        {/* Botón para instalar PWA en Android/otros dispositivos */}
+        {shouldShowInstallButton && (
           <button
             onClick={handleInstallClick}
             style={{
@@ -357,8 +363,8 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
           </button>
         )}
 
-        {/* Botón para compartir (solo para no-iOS o cuando iOS no está activo) */}
-        {!isIOS && showShareButton && (
+        {/* Botón de compartir como fallback solo si no hay botón de instalación (no-iOS) */}
+        {shouldShowShareButton && !isIOS && (
           <button
             onClick={handleShareClick}
             style={{
@@ -401,7 +407,7 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
-            <span>Compartir</span>
+            <span>Guardar acceso directo</span>
           </button>
         )}
       </div>

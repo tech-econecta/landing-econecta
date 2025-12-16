@@ -86,10 +86,10 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // En iOS, mostrar el botón siempre si no está en modo standalone
-    // (iOS no tiene beforeinstallprompt, pero Safari permite añadir a pantalla de inicio)
-    if (iOS && !checkStandalone()) {
-      setShowInstallButton(true);
+    // En iOS, NO mostrar el botón de instalación de Android
+    // iOS usa el botón de compartir para añadir a pantalla de inicio
+    if (iOS) {
+      setShowInstallButton(false);
     }
 
     // Escuchar cambios en display-mode usando MediaQueryList
@@ -152,6 +152,12 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   }, []);
 
   const handleShareClick = async () => {
+    // En iOS, mostrar instrucciones de instalación en lugar de compartir directamente
+    if (isIOS) {
+      setShowIOSInstructions(true);
+      return;
+    }
+
     const currentUrl = window.location.href;
     const pageTitle = document.title;
 
@@ -259,52 +265,8 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
   return (
     <>
       <div className="flex justify-center gap-3 mt-6 mb-4 px-4 flex-wrap">
-        {/* Botón para instalar PWA en modo browser */}
-        {showInstallButton && (
-          <button
-            onClick={handleInstallClick}
-            style={{
-              backgroundColor: "rgba(0, 0, 0, 0.9)",
-              color: textColor,
-              border: `2px solid ${textColor}`,
-              borderRadius: "12px",
-              padding: "12px 24px",
-              fontSize: "16px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              transition: "all 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 1)";
-              e.currentTarget.style.transform = "scale(1.05)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
-              e.currentTarget.style.transform = "scale(1)";
-            }}
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke={textColor}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
-            <span>Guardar acceso directo (Android)</span>
-          </button>
-        )}
-
-        {/* Botón para compartir */}
-        {showShareButton && (
+        {/* En iOS, mostrar primero el botón de compartir */}
+        {isIOS && showShareButton && (
           <button
             onClick={handleShareClick}
             style={{
@@ -347,7 +309,99 @@ const AddToHomeScreen: React.FC<AddToHomeScreenProps> = ({
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
-            <span>Compartir (iOS)</span>
+            <span>Compartir</span>
+          </button>
+        )}
+
+        {/* Botón para instalar PWA en modo browser (solo Android/otros, no iOS) */}
+        {!isIOS && showInstallButton && (
+          <button
+            onClick={handleInstallClick}
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.9)",
+              color: textColor,
+              border: `2px solid ${textColor}`,
+              borderRadius: "12px",
+              padding: "12px 24px",
+              fontSize: "16px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 1)";
+              e.currentTarget.style.transform = "scale(1.05)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+              e.currentTarget.style.transform = "scale(1)";
+            }}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={textColor}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+            <span>Guardar acceso directo</span>
+          </button>
+        )}
+
+        {/* Botón para compartir (solo para no-iOS o cuando iOS no está activo) */}
+        {!isIOS && showShareButton && (
+          <button
+            onClick={handleShareClick}
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.9)",
+              color: textColor,
+              border: `2px solid ${textColor}`,
+              borderRadius: "12px",
+              padding: "12px 24px",
+              fontSize: "16px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 1)";
+              e.currentTarget.style.transform = "scale(1.05)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+              e.currentTarget.style.transform = "scale(1)";
+            }}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={textColor}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+            <span>Compartir</span>
           </button>
         )}
       </div>

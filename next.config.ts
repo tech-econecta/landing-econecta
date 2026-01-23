@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Optimiza el build para producción
   output: "standalone",
-
   // Configuración de imágenes
   images: {
     remotePatterns: [

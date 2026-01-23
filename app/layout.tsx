@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Urbanist } from "next/font/google";
 const urbanist = Urbanist({
@@ -40,7 +41,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased ${urbanist.variable}`}>{children}</body>
+      <body className={`antialiased ${urbanist.variable}`}>
+        {children}
+        <Script
+          src="https://analytics.econecta.io/script.js"
+          data-website-id="4b446d35-a5ef-4060-ab02-cb508f70d5e7"
+          strategy="afterInteractive"
+        />
+      </body>
     </html>
   );
 }

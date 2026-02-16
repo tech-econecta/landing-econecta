@@ -29,6 +29,7 @@ type CaptadorProps = {
   title?: string;
   titleColor?: string;
   username: string; // Nuevo: el nombre de usuario para la API
+  isMandatory?: boolean;
 };
 
 const Captador: React.FC<CaptadorProps> = ({
@@ -40,6 +41,7 @@ const Captador: React.FC<CaptadorProps> = ({
   title = "Formulario",
   titleColor = "#000",
   username,
+  isMandatory = false,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -84,7 +86,10 @@ const Captador: React.FC<CaptadorProps> = ({
       title={<span style={{ color: titleColor }}>{title}</span>}
       open={isModalVisible}
       centered
-      onCancel={() => setIsModalVisible(false)}
+      onCancel={() => !isMandatory && setIsModalVisible(false)}
+      closable={!isMandatory}
+      maskClosable={!isMandatory}
+      keyboard={!isMandatory}
       footer={[
         <Button
           key="submit"

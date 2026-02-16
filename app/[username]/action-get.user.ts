@@ -88,6 +88,7 @@ type Captador = {
   submitTextColor?: string;
   title?: string;
   titleColor?: string;
+  isMandatory?: boolean;
 };
 
 type Slide = {

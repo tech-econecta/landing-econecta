@@ -66,10 +66,10 @@ export default function Footer() {
             <ul className="space-y-4">
               <li>
                 <a
-                  href="mailto:soporte@econecta.io"
+                  href="mailto:hola@econecta.io"
                   className="text-sm text-slate-400 hover:text-white transition-colors duration-200"
                 >
-                  soporte@econecta.io
+                  hola@econecta.io
                 </a>
               </li>
               <li className="flex items-center gap-4 pt-2">

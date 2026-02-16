@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
   props: ProfileProps,
-  _parent: ResolvingMetadata
+  _parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const params = await props.params;
   const { username } = params;
@@ -284,6 +284,7 @@ export default async function ProfilePage(props: ProfileProps) {
             title={captador.title}
             titleColor={captador.titleColor}
             username={username}
+            isMandatory={captador.isMandatory}
           />
         )}
       </div>

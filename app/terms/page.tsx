@@ -68,8 +68,8 @@ export default function TermsPage() {
             </h2>
             <p className="text-gray-600 mb-4">
               Puede solicitar la eliminación de sus datos en cualquier momento
-              enviando un correo electrónico a soporte@econecta.io. Procesaremos
-              su solicitud en un plazo máximo de 30 días.
+              enviando un correo electrónico a hola@econecta.io. Procesaremos su
+              solicitud en un plazo máximo de 30 días.
             </p>
           </section>
 
@@ -90,8 +90,7 @@ export default function TermsPage() {
             </h2>
             <p className="text-gray-600">
               Si tiene preguntas sobre estos términos y condiciones o sobre el
-              manejo de sus datos personales, contáctenos en
-              soporte@econecta.io.
+              manejo de sus datos personales, contáctenos en hola@econecta.io.
             </p>
           </section>
         </div>

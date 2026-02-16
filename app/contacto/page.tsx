@@ -83,7 +83,7 @@ export default function ContactPage() {
                         ventasve@econecta.io
                       </p>
                       <p className="font-medium text-gray-900">
-                        soporte@econecta.io
+                        hola@econecta.io
                       </p>
                     </div>
                   </div>

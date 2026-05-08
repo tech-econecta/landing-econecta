@@ -8,9 +8,31 @@ interface ReplaceRedirectProps {
 
 export default function ReplaceRedirect({ url }: ReplaceRedirectProps) {
   useEffect(() => {
-    console.log("🚀 Redirección de cliente iniciada hacia:", url);
-    // Usamos replace para que la página actual no se guarde en el historial
-    window.location.replace(url);
+    try {
+      // Obtener el origin y path actual
+      const currentOrigin = window.location.origin;
+      const currentPath = window.location.pathname;
+      
+      // Parsear la URL de destino
+      const targetUrl = new URL(url);
+      
+      // EVITAR BUCLE: Si el origen y el path ya coinciden, no redireccionamos
+      // Normalizamos el path quitando la barra final si existe
+      const normCurrentPath = currentPath.replace(/\/$/, "");
+      const normTargetPath = targetUrl.pathname.replace(/\/$/, "");
+
+      if (currentOrigin === targetUrl.origin && normCurrentPath === normTargetPath) {
+        console.log("✅ Ya estamos en el destino, cancelando redirección para evitar bucle.");
+        return;
+      }
+
+      console.log("🚀 Redirección de cliente iniciada hacia:", url);
+      window.location.replace(url);
+    } catch (e) {
+      console.error("Error en redirección:", e);
+      // Si falla el parseo de la URL, intentamos redirigir de todos modos como fallback
+      window.location.replace(url);
+    }
   }, [url]);
 
   return (

@@ -130,9 +130,12 @@ export default async function ProfilePage(props: ProfileProps) {
 
   const { perfil, captador, redirect: redirectConfig } = response;
 
+  // Log para depuración en producción (se verá en los logs del servidor)
+  console.log(`[Profile] Cargando perfil: ${username}. Configuración de redirección:`, JSON.stringify(redirectConfig || { msg: "No config" }));
+
   // Verificar si el usuario tiene una redirección activa configurada desde el admin
   if (redirectConfig?.enabled && redirectConfig?.url) {
-    console.log(`[Redirect] Redirigiendo usuario ${username} a ${redirectConfig.url}`);
+    console.log(`[Redirect] TRIGGERED: Redirigiendo usuario ${username} a ${redirectConfig.url}`);
     
     // Registrar la visita antes de redirigir (server-side)
     try {
@@ -142,7 +145,6 @@ export default async function ProfilePage(props: ProfileProps) {
                  "Desconocido";
       
       // No esperamos el resultado de la visita para no retrasar la redirección
-      // pero lo ejecutamos para que quede registrado
       registerUserVisit(username, ip).catch(err => 
         console.error("Error registrando visita pre-redirección:", err)
       );
@@ -151,8 +153,11 @@ export default async function ProfilePage(props: ProfileProps) {
     }
 
     // Realizar la redirección usando un componente de cliente con replace
-    // para que el usuario no pueda "retroceder" a esta página
     return <ReplaceRedirect url={redirectConfig.url} />;
+  } else {
+    if (redirectConfig) {
+      console.log(`[Redirect] NOT TRIGGERED: enabled=${redirectConfig.enabled}, hasUrl=${!!redirectConfig.url}`);
+    }
   }
 
     // Destructuramos para mejorar la claridad del uso de los datos

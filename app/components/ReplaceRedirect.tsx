@@ -8,6 +8,7 @@ interface ReplaceRedirectProps {
 
 export default function ReplaceRedirect({ url }: ReplaceRedirectProps) {
   useEffect(() => {
+    console.log("🚀 Redirección de cliente iniciada hacia:", url);
     // Usamos replace para que la página actual no se guarde en el historial
     window.location.replace(url);
   }, [url]);

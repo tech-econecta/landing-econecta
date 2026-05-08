@@ -5,6 +5,7 @@ import CardClient from "@/app/[username]/card/CardClient";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getUser } from "@/app/[username]/action-get.user";
+import ReplaceRedirect from "@/app/components/ReplaceRedirect";
 
 export const dynamic = "force-dynamic";
 
@@ -116,7 +117,15 @@ export default async function CustomDomainPage(props: CustomDomainProps) {
       return notFound();
     }
 
-    console.log(`[CustomDomain] Usuario encontrado exitosamente. Renderizando CardClient para: ${username}`);
+    console.log(`[CustomDomain] Usuario encontrado exitosamente: ${username}`);
+
+    // --- Lógica de Redirección ---
+    const redirectConfig = userData.redirect;
+    if (redirectConfig?.enabled && redirectConfig?.url) {
+      console.log(`[CustomDomain-Redirect] Redirigiendo a: ${redirectConfig.url}`);
+      return <ReplaceRedirect url={redirectConfig.url} />;
+    }
+    // ----------------------------
 
     // 3. Renderizar la tarjeta
     return <CardClient perfil={userData.perfil} username={username} />;

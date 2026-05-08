@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { Carousel } from "antd";
+import React, { useEffect, useState } from "react";
+// Importar Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+// Importar Swiper modules
+import { Autoplay, Pagination, Navigation } from "swiper/modules";
+
+// Importar Swiper styles
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
 
 // Extender la interfaz HTMLVideoElement para incluir métodos específicos del navegador
 declare global {
@@ -23,9 +31,8 @@ type CarouselProps = {
 
 const contentStyle: React.CSSProperties = {
   width: "100%",
-  height: "auto", // Altura del carrusel
+  height: "auto",
   display: "flex",
-  paddingTop: "10px",
   justifyContent: "center",
   alignItems: "center",
   overflow: "hidden",
@@ -35,8 +42,10 @@ const contentStyle: React.CSSProperties = {
 const AppCarousel: React.FC<CarouselProps> = ({ slides }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const carouselRef = useRef<any>(null);
-  const [autoplay, setAutoplay] = useState(true);
+  const [autoplayConfig, setAutoplayConfig] = useState<any>({
+    delay: 3000,
+    disableOnInteraction: false,
+  });
 
   // Detectar si es un dispositivo móvil
   useEffect(() => {
@@ -44,21 +53,12 @@ const AppCarousel: React.FC<CarouselProps> = ({ slides }) => {
       setIsMobile(window.innerWidth <= 768);
     };
 
-    // Comprobar al cargar
     checkMobile();
-
-    // Actualizar al cambiar el tamaño de la ventana
     window.addEventListener("resize", checkMobile);
-
     return () => {
       window.removeEventListener("resize", checkMobile);
     };
   }, []);
-
-  // Actualizar el autoplay del carrusel según el estado del video
-  useEffect(() => {
-    setAutoplay(!isVideoPlaying);
-  }, [isVideoPlaying]);
 
   const handleSlideClick = (url: string) => {
     if (url) {
@@ -67,13 +67,9 @@ const AppCarousel: React.FC<CarouselProps> = ({ slides }) => {
   };
 
   const handleVideoPlay = (event: React.MouseEvent<HTMLVideoElement>) => {
-    // Detener la propagación para evitar que se active handleSlideClick
     event.stopPropagation();
-
-    // Obtener el elemento de video y solicitar pantalla completa
     const video = event.currentTarget;
 
-    // En móviles, siempre intentar ir a pantalla completa para mejor experiencia
     if (isMobile || video.requestFullscreen) {
       video.requestFullscreen();
     } else if (video.webkitRequestFullscreen) {
@@ -83,7 +79,6 @@ const AppCarousel: React.FC<CarouselProps> = ({ slides }) => {
     }
   };
 
-  // Manejadores de eventos para video
   const handleVideoStateChange = (
     event: React.SyntheticEvent<HTMLVideoElement, Event>
   ) => {
@@ -92,47 +87,66 @@ const AppCarousel: React.FC<CarouselProps> = ({ slides }) => {
   };
 
   return (
-    <Carousel
-      autoplay={autoplay}
-      infinite
-      arrows
-      dots={false}
-      ref={carouselRef}
-      autoplaySpeed={3000}
-      pauseOnHover
-      pauseOnDotsHover
-    >
-      {slides.map((slide, index) => (
-        <div key={index} onClick={() => handleSlideClick(slide.url)}>
-          {slide.video ? (
-            <video
-              src={slide.video}
-              controls
-              onClick={handleVideoPlay}
-              playsInline={isMobile}
-              onPlay={handleVideoStateChange}
-              onPause={handleVideoStateChange}
-              onEnded={handleVideoStateChange}
-              style={{
-                ...contentStyle,
-                objectFit: "contain",
-                width: isMobile ? "100%" : contentStyle.width,
-                height: isMobile ? "auto" : contentStyle.height,
-              }}
-            />
-          ) : (
-            <img
-              src={slide.image}
-              alt={`Slide ${index + 1}`}
-              style={{
-                ...contentStyle,
-                objectFit: "contain",
-              }}
-            />
-          )}
-        </div>
-      ))}
-    </Carousel>
+    <div className="w-full relative px-4">
+      <Swiper
+        modules={[Autoplay, Pagination, Navigation]}
+        spaceBetween={10}
+        slidesPerView={1}
+        loop={true}
+        autoplay={isVideoPlaying ? false : autoplayConfig}
+        pagination={{ clickable: true }}
+        className="rounded-xl overflow-hidden"
+        style={{
+          "--swiper-pagination-color": "#3359fe",
+          "--swiper-navigation-color": "#3359fe",
+        } as React.CSSProperties}
+      >
+        {slides.map((slide, index) => (
+          <SwiperSlide key={index} onClick={() => handleSlideClick(slide.url)}>
+            <div style={contentStyle}>
+              {slide.video ? (
+                <video
+                  src={slide.video}
+                  controls
+                  onClick={handleVideoPlay}
+                  playsInline={isMobile}
+                  onPlay={handleVideoStateChange}
+                  onPause={handleVideoStateChange}
+                  onEnded={handleVideoStateChange}
+                  style={{
+                    objectFit: "contain",
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: "12px",
+                  }}
+                />
+              ) : (
+                <img
+                  src={slide.image}
+                  alt={`Slide ${index + 1}`}
+                  style={{
+                    objectFit: "contain",
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: "12px",
+                  }}
+                />
+              )}
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+      
+      <style jsx global>{`
+        .swiper-pagination-bullet {
+          background: #ccc;
+          opacity: 1;
+        }
+        .swiper-pagination-bullet-active {
+          background: #3359fe !important;
+        }
+      `}</style>
+    </div>
   );
 };
 

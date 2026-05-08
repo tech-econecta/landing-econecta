@@ -16,8 +16,9 @@ export default function VisitTracker({ username }: VisitTrackerProps) {
       try {
         console.log("Iniciando registro de visita desde el cliente...");
 
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/visit`,
+          `${apiUrl}/api/visit`,
           {
             method: "POST",
             headers: {

@@ -8,6 +8,9 @@ import ServiceWorkerRegistration from "../components/perfil/ServiceWorkerRegistr
 import { Empty } from "antd";
 import { getUser } from "./action-get.user";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import ReplaceRedirect from "../components/ReplaceRedirect";
+import { registerUserVisit } from "../lib/visit";
 
 type ProfileProps = {
   params: Promise<{ username: string }>;
@@ -107,17 +110,50 @@ export default async function ProfilePage(props: ProfileProps) {
     redirect(`/${redirects[decodedUsername as keyof typeof redirects]}`);
   }
 
+  let response;
   try {
-    const response = await getUser(username);
-    if (response.error) {
-      // console.log(`Error fetching user data for username: ${username}, Status: ${response.status}`);
-      return (
-        <div className="flex items-center justify-center h-screen">
-          <Empty description="User not found" />
-        </div>
+    response = await getUser(username);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return (
+      <div className="text-center text-red-500">Error loading user data</div>
+    );
+  }
+
+  if (response.error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Empty description="User not found" />
+      </div>
+    );
+  }
+
+  const { perfil, captador, redirect: redirectConfig } = response;
+
+  // Verificar si el usuario tiene una redirección activa configurada desde el admin
+  if (redirectConfig?.enabled && redirectConfig?.url) {
+    console.log(`[Redirect] Redirigiendo usuario ${username} a ${redirectConfig.url}`);
+    
+    // Registrar la visita antes de redirigir (server-side)
+    try {
+      const headersList = await headers();
+      const ip = headersList.get("x-forwarded-for")?.split(",")[0] || 
+                 headersList.get("x-real-ip") || 
+                 "Desconocido";
+      
+      // No esperamos el resultado de la visita para no retrasar la redirección
+      // pero lo ejecutamos para que quede registrado
+      registerUserVisit(username, ip).catch(err => 
+        console.error("Error registrando visita pre-redirección:", err)
       );
+    } catch (e) {
+      console.error("Error al obtener IP para registro de visita:", e);
     }
-    const { perfil, captador } = response;
+
+    // Realizar la redirección usando un componente de cliente con replace
+    // para que el usuario no pueda "retroceder" a esta página
+    return <ReplaceRedirect url={redirectConfig.url} />;
+  }
 
     // Destructuramos para mejorar la claridad del uso de los datos
     const {
@@ -289,10 +325,4 @@ export default async function ProfilePage(props: ProfileProps) {
         )}
       </div>
     );
-  } catch (error) {
-    console.error("Error rendering profile page:", error);
-    return (
-      <div className="text-center text-red-500">Error loading user data</div>
-    );
-  }
 }

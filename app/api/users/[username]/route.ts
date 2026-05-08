@@ -34,6 +34,7 @@ export async function GET(
       userData = {
         perfil: data.perfil || {}, // Asegurarse de que perfil existe
         captador: data.captador || null, // Asegurarse de que captador existe
+        redirect: data.redirect || null, // Redirect a custom domain
       };
     });
 

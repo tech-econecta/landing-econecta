@@ -4,6 +4,7 @@ import { Empty } from "antd";
 import { UserData } from "../action-get.user";
 import { redirects } from "../page";
 import { redirect } from "next/navigation";
+import { getUser } from "../action-get.user";
 import CardClient from "./CardClient";
 
 type CardProps = {
@@ -21,17 +22,15 @@ export async function generateMetadata(
   const defaultMetaData = await parent;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
-    );
+    const userData = await getUser(username);
 
-    if (!response.ok) {
+    if (userData.error || !userData.perfil) {
       return {
         title: "User Not Found",
       };
     }
 
-    const { perfil }: UserData = await response.json();
+    const perfil = userData.perfil;
     const favicon = perfil.imagen || defaultMetaData.icons?.icon;
 
     return {
@@ -62,23 +61,10 @@ export default async function CardPage(props: CardProps) {
     redirect(`/${redirects[username as keyof typeof redirects]}/card`);
   }
 
+  let userData;
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`
-    );
-
-    if (!response.ok) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <Empty description="User not found" />
-        </div>
-      );
-    }
-
-    const userData = (await response.json()) as UserData;
-    const perfil = userData.perfil;
-
-    return <CardClient perfil={perfil} username={username} />;
+    userData = await getUser(username);
+    console.log(`[CardPage] Datos obtenidos para ${username}:`, userData?.error ? "Error: " + userData.error : "Exito (perfil existe)");
   } catch (error) {
     console.error("Error fetching card data:", error);
     return (
@@ -87,4 +73,24 @@ export default async function CardPage(props: CardProps) {
       </div>
     );
   }
+
+  if (userData?.error || !userData?.perfil) {
+    console.log(`[CardPage] Retornando 'User not found' porque userData.error=${userData?.error} o perfil es indefinido`);
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Empty description="User not found" />
+      </div>
+    );
+  }
+
+  // Redirect a custom domain si está configurado desde el superadmin
+  if (userData.redirect?.enabled && userData.redirect?.url) {
+    console.log(`[CardPage] Redirigiendo a custom domain configurado para ${username}: ${userData.redirect.url}`);
+    redirect(userData.redirect.url);
+  }
+
+  console.log(`[CardPage] Renderizando tarjeta para ${username} localmente (sin redireccion)`);
+  const perfil = userData.perfil;
+
+  return <CardClient perfil={perfil} username={username} />;
 }

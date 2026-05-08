@@ -13,6 +13,12 @@ interface GetUserData {
   captador?: Captador;
   referencia?: DocumentReference<DocumentData, DocumentData>;
   empresa?: Empresa | undefined;
+  redirect?: {
+    enabled: boolean;
+    url: string;
+    updated_at?: any;
+    updated_by?: string;
+  };
   error?: string;
 }
 
@@ -25,8 +31,24 @@ export async function getUser(username: string): Promise<GetUserData> {
   try {
     const usersRef = collection(db, "users");
     const decodedUsername = decodeURIComponent(username);
-    const q = query(usersRef, where("user_name", "==", decodedUsername));
-    const snapshot = await getDocs(q);
+    
+    // Intento 1: match exacto
+    let q = query(usersRef, where("user_name", "==", decodedUsername));
+    let snapshot = await getDocs(q);
+
+    // Intento 2: primera letra mayúscula (ej: keeppz -> Keeppz)
+    if (snapshot.empty) {
+      const capitalizedUsername = decodedUsername.charAt(0).toUpperCase() + decodedUsername.slice(1);
+      q = query(usersRef, where("user_name", "==", capitalizedUsername));
+      snapshot = await getDocs(q);
+    }
+
+    // Intento 3: todo minúscula (ej: Keeppz -> keeppz)
+    if (snapshot.empty) {
+      const lowercasedUsername = decodedUsername.toLowerCase();
+      q = query(usersRef, where("user_name", "==", lowercasedUsername));
+      snapshot = await getDocs(q);
+    }
 
     if (snapshot.empty) {
       return {
@@ -142,4 +164,10 @@ export type UserData = {
   captador?: Captador;
   empresa?: Empresa;
   referencia?: any;
+  redirect?: {
+    enabled: boolean;
+    url: string;
+    updated_at?: any;
+    updated_by?: string;
+  };
 };

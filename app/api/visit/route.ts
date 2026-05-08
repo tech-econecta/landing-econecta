@@ -1,22 +1,9 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  Timestamp,
-} from "firebase/firestore";
-import { db } from "@/firebase";
-import { getClientIp as getIP } from "request-ip";
-import {
-  formatVenezuelaDate,
-  getCurrentVenezuelaTime,
-  getTimeDebugInfo,
-} from "@/app/lib/timezone";
+import { registerUserVisit, VisitGeoInfo } from "@/app/lib/visit";
+import { formatVenezuelaDate, getTimeDebugInfo } from "@/app/lib/timezone";
 
-const getGeoInfo = async (ip: string) => {
+const getGeoInfo = async (ip: string): Promise<VisitGeoInfo> => {
   // Si es una IP local, usar información por defecto
   if (
     ip === "::1" ||
@@ -98,15 +85,7 @@ const getClientIp = async (req: Request): Promise<string> => {
     }
   }
 
-  // Si no encontramos una IP real, usar la detección por defecto
-  const reqObject = {
-    headers: headersObj,
-    connection: { remoteAddress: headersObj["x-real-ip"] || "0.0.0.0" },
-    socket: { remoteAddress: headersObj["x-real-ip"] || "0.0.0.0" },
-  };
-
-  const ip = getIP(reqObject as any) || "0.0.0.0";
-  return ip;
+  return "Desconocido";
 };
 
 // Función para verificar si una IP es privada/local
@@ -130,55 +109,27 @@ export async function POST(request: Request) {
     const ip = await getClientIp(request);
     const geoInfo = await getGeoInfo(ip);
 
-    // Verificar usuario
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("user_name", "==", username));
-    const snapshot = await getDocs(q);
+    // Usar la utilidad compartida para registrar la visita
+    const result = await registerUserVisit(username, ip, geoInfo);
 
-    if (snapshot.empty) {
-      console.error(`Usuario no encontrado al registrar visita: ${username}`);
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Usuario no encontrado" },
-        { status: 404 }
+        { error: result.error },
+        { status: result.error === "Usuario no encontrado" ? 404 : 500 }
       );
     }
 
-    // Crear fecha con zona horaria de Venezuela usando las utilidades corregidas
-    const now = new Date();
-    const venezuelaTime = getCurrentVenezuelaTime(); // Usar la función más robusta
-    const formattedDate = formatVenezuelaDate(venezuelaTime);
-
-    // Obtener información de debug del tiempo
-    const timeDebugInfo = getTimeDebugInfo();
-
-    // Referencia del usuario y agregar estadística
-    const userDoc = snapshot.docs[0];
-    await addDoc(collection(userDoc.ref, "statics"), {
-      date: Timestamp.fromDate(venezuelaTime),
-      dateUTC: Timestamp.now(), // Mantener también la fecha UTC para referencia
-      ip: ip || "Desconocido",
-      country: geoInfo.country,
-      region: geoInfo.region,
-      city: geoInfo.city,
-      timezone: geoInfo.timezone || "America/Caracas",
-      isLocal: geoInfo.isLocal || false,
-      hasGeoError: geoInfo.error || false,
-      // Información adicional de debug
-      serverTimezone: timeDebugInfo.serverTimezone,
-      offsetMinutes: timeDebugInfo.offsetMinutes,
-    });
-
     return NextResponse.json({
       message: "Visita registrada correctamente",
-      ip,
-      geoInfo,
-      timestamp: venezuelaTime.toISOString(),
-      formattedDate,
+      ip: result.ip,
+      geoInfo: result.geoInfo,
+      timestamp: result.venezuelaTime?.toISOString(),
+      formattedDate: formatVenezuelaDate(result.venezuelaTime),
       timezone: "America/Caracas",
-      debugInfo: timeDebugInfo, // Incluir información de debug en la respuesta
+      debugInfo: getTimeDebugInfo(),
     });
   } catch (error) {
-    console.error("Error registrando la visita:", error);
+    console.error("Error registrando la visita en API route:", error);
     return NextResponse.json(
       { error: "Error registrando la visita" },
       { status: 500 }

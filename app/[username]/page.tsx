@@ -135,25 +135,40 @@ export default async function ProfilePage(props: ProfileProps) {
 
   // Verificar si el usuario tiene una redirección activa configurada desde el admin
   if (redirectConfig?.enabled && redirectConfig?.url) {
-    console.log(`[Redirect] TRIGGERED: Redirigiendo usuario ${username} a ${redirectConfig.url}`);
+    const headersList = await headers();
+    const currentHost = headersList.get("host")?.replace(/:\d+$/, "") || "";
     
-    // Registrar la visita antes de redirigir (server-side)
+    let shouldRedirect = true;
     try {
-      const headersList = await headers();
-      const ip = headersList.get("x-forwarded-for")?.split(",")[0] || 
-                 headersList.get("x-real-ip") || 
-                 "Desconocido";
-      
-      // No esperamos el resultado de la visita para no retrasar la redirección
-      registerUserVisit(username, ip).catch(err => 
-        console.error("Error registrando visita pre-redirección:", err)
-      );
+      const targetUrl = new URL(redirectConfig.url);
+      if (currentHost === targetUrl.host) {
+        console.log(`[Redirect] SKIPPED: Ya estamos en el dominio de destino ${currentHost}. Mostrando perfil.`);
+        shouldRedirect = false;
+      }
     } catch (e) {
-      console.error("Error al obtener IP para registro de visita:", e);
+      console.error("Error al parsear URL de redirección:", e);
     }
 
-    // Realizar la redirección usando un componente de cliente con replace
-    return <ReplaceRedirect url={redirectConfig.url} />;
+    if (shouldRedirect) {
+      console.log(`[Redirect] TRIGGERED: Redirigiendo usuario ${username} a ${redirectConfig.url}`);
+      
+      // Registrar la visita antes de redirigir (server-side)
+      try {
+        const ip = headersList.get("x-forwarded-for")?.split(",")[0] || 
+                   headersList.get("x-real-ip") || 
+                   "Desconocido";
+        
+        // No esperamos el resultado de la visita para no retrasar la redirección
+        registerUserVisit(username, ip).catch(err => 
+          console.error("Error registrando visita pre-redirección:", err)
+        );
+      } catch (e) {
+        console.error("Error al obtener IP para registro de visita:", e);
+      }
+
+      // Realizar la redirección usando un componente de cliente con replace
+      return <ReplaceRedirect url={redirectConfig.url} />;
+    }
   } else {
     if (redirectConfig) {
       console.log(`[Redirect] NOT TRIGGERED: enabled=${redirectConfig.enabled}, hasUrl=${!!redirectConfig.url}`);

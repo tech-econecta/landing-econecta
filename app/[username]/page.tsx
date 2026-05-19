@@ -129,25 +129,46 @@ export default async function ProfilePage(props: ProfileProps) {
     );
   }
 
-  // Validación de acceso privado: si el perfil es privado y se accedió por username, bloquear
-  const { accessMode, resolvedBy } = response as any;
-  if (accessMode === 'private' && resolvedBy === 'username') {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 gap-4">
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-sm text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
-              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold text-gray-800">Perfil Privado</h1>
-          <p className="text-gray-500 text-sm">
-            Este perfil no está disponible de forma pública. Necesitas un enlace privado para acceder.
-          </p>
-        </div>
-      </div>
-    );
+  // Validación de acceso privado: si el perfil es privado y se accedió por username público,
+  // redirigimos automáticamente usando el docID para auto-corregir la URL y no bloquear las tarjetas físicas.
+  const { accessMode, resolvedBy, docId, redirect: redirectConfig } = response as any;
+  if (accessMode === 'private' && resolvedBy === 'username' && docId) {
+    // Caso A: Si tiene redirección activa, redirigir de inmediato al dominio personalizado usando el docID privado
+    if (redirectConfig?.enabled && redirectConfig?.url) {
+      console.log(`[Profile] Perfil privado accedido por username. Redirigiendo directo al dominio de destino con el ID privado.`);
+      // Reemplazar la URL objetivo para que use el docID
+      try {
+        const targetUrl = new URL(redirectConfig.url);
+        const headersList = await headers();
+        const customDomain = targetUrl.hostname;
+        
+        // Registrar la visita antes de redirigir (para analíticas)
+        const ip = getClientIpFromHeaders(headersList);
+        const userAgent = headersList.get("user-agent") || "";
+        const geoInfo = await getGeoInfo(ip);
+        const device = parseUserAgent(userAgent);
+        
+        await registerUserVisit({
+          userId: docId,
+          ip,
+          country: geoInfo.country,
+          city: geoInfo.city,
+          device: device.type,
+          browser: device.browser,
+          isRedirect: true
+        });
+
+        const finalRedirectUrl = `https://${customDomain}/${docId}`;
+        console.log(`[Redirect] TRIGGERED (Private Username Fallback): Redirigiendo a ${finalRedirectUrl}`);
+        return <ReplaceRedirect url={finalRedirectUrl} />;
+      } catch (err) {
+        console.error("Error resolviendo URL de redirección en fallback privado:", err);
+      }
+    }
+
+    // Caso B: Si es privado sin redirección externa, redirigir internamente a econecta.io/{docID}
+    console.log(`[Profile] Perfil privado accedido por username público. Auto-corrigiendo URL a la versión privada por ID: /${docId}`);
+    redirect(`/${docId}`);
   }
 
   const { perfil, captador, redirect: redirectConfig } = response;

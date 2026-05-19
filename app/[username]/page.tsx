@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import ReplaceRedirect from "../components/ReplaceRedirect";
 import { registerUserVisit } from "../lib/visit";
+import { getGeoInfo, getClientIpFromHeaders, parseUserAgent } from "../lib/geo";
 
 type ProfileProps = {
   params: Promise<{ username: string }>;
@@ -128,6 +129,27 @@ export default async function ProfilePage(props: ProfileProps) {
     );
   }
 
+  // Validación de acceso privado: si el perfil es privado y se accedió por username, bloquear
+  const { accessMode, resolvedBy } = response as any;
+  if (accessMode === 'private' && resolvedBy === 'username') {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 gap-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-sm text-center space-y-4">
+          <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h1 className="text-xl font-bold text-gray-800">Perfil Privado</h1>
+          <p className="text-gray-500 text-sm">
+            Este perfil no está disponible de forma pública. Necesitas un enlace privado para acceder.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const { perfil, captador, redirect: redirectConfig } = response;
 
   // Log para depuración en producción (se verá en los logs del servidor)
@@ -152,18 +174,25 @@ export default async function ProfilePage(props: ProfileProps) {
     if (shouldRedirect) {
       console.log(`[Redirect] TRIGGERED: Redirigiendo usuario ${username} a ${redirectConfig.url}`);
       
-      // Registrar la visita antes de redirigir (server-side)
+      // Registrar la visita COMPLETA antes de redirigir (server-side)
+      // Esta es la ÚNICA oportunidad de capturar analíticas para usuarios redirigidos
       try {
-        const ip = headersList.get("x-forwarded-for")?.split(",")[0] || 
-                   headersList.get("x-real-ip") || 
-                   "Desconocido";
+        const ip = getClientIpFromHeaders(headersList);
+        const userAgent = headersList.get("user-agent");
+        const referrer = headersList.get("referer") || headersList.get("referrer") || undefined;
         
-        // No esperamos el resultado de la visita para no retrasar la redirección
-        registerUserVisit(username, ip).catch(err => 
-          console.error("Error registrando visita pre-redirección:", err)
-        );
+        // Obtener geolocalización completa (con timeout de 3s)
+        const geoInfo = await getGeoInfo(ip);
+        
+        // Parsear información del dispositivo
+        const deviceInfo = parseUserAgent(userAgent);
+        
+        // Registrar visita con TODOS los datos disponibles
+        await registerUserVisit(username, ip, geoInfo, deviceInfo, referrer, "redirect");
+        
+        console.log(`[Analytics] Visita registrada completa para ${username} (redirect). IP: ${ip}, País: ${geoInfo.country}, Device: ${deviceInfo.device}, Browser: ${deviceInfo.browser}`);
       } catch (e) {
-        console.error("Error al obtener IP para registro de visita:", e);
+        console.error("Error al registrar visita pre-redirección:", e);
       }
 
       // Realizar la redirección usando un componente de cliente con replace

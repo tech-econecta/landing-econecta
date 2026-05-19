@@ -19,6 +19,9 @@ interface GetUserData {
     updated_at?: any;
     updated_by?: string;
   };
+  accessMode?: 'public' | 'private';
+  docId?: string;
+  resolvedBy?: 'id' | 'username';
   error?: string;
 }
 
@@ -31,33 +34,56 @@ export async function getUser(username: string): Promise<GetUserData> {
   try {
     const usersRef = collection(db, "users");
     const decodedUsername = decodeURIComponent(username);
-    
-    // Intento 1: match exacto
-    let q = query(usersRef, where("user_name", "==", decodedUsername));
-    let snapshot = await getDocs(q);
 
-    // Intento 2: primera letra mayúscula (ej: keeppz -> Keeppz)
-    if (snapshot.empty) {
-      const capitalizedUsername = decodedUsername.charAt(0).toUpperCase() + decodedUsername.slice(1);
-      q = query(usersRef, where("user_name", "==", capitalizedUsername));
-      snapshot = await getDocs(q);
+    let data: DocumentData | undefined;
+    let docId: string | undefined;
+    let referencia: DocumentReference<DocumentData, DocumentData> | undefined;
+    let resolvedBy: 'id' | 'username' = 'username';
+
+    // Intento 0: búsqueda directa por Document ID (para enlaces privados)
+    try {
+      const directDoc = await getDoc(doc(db, "users", decodedUsername));
+      if (directDoc.exists()) {
+        data = directDoc.data();
+        docId = directDoc.id;
+        referencia = directDoc.ref;
+        resolvedBy = 'id';
+      }
+    } catch (e) {
+      // ID inválido para Firestore, continuamos con búsqueda por username
     }
 
-    // Intento 3: todo minúscula (ej: Keeppz -> keeppz)
-    if (snapshot.empty) {
-      const lowercasedUsername = decodedUsername.toLowerCase();
-      q = query(usersRef, where("user_name", "==", lowercasedUsername));
-      snapshot = await getDocs(q);
-    }
+    // Si no se encontró por ID, buscar por username
+    if (!data) {
+      // Intento 1: match exacto
+      let q = query(usersRef, where("user_name", "==", decodedUsername));
+      let snapshot = await getDocs(q);
 
-    if (snapshot.empty) {
-      return {
-        error: "User not found",
-      };
-    }
+      // Intento 2: primera letra mayúscula (ej: keeppz -> Keeppz)
+      if (snapshot.empty) {
+        const capitalizedUsername = decodedUsername.charAt(0).toUpperCase() + decodedUsername.slice(1);
+        q = query(usersRef, where("user_name", "==", capitalizedUsername));
+        snapshot = await getDocs(q);
+      }
 
-    const data = snapshot.docs[0].data();
-    const referencia = snapshot.docs[0].ref;
+      // Intento 3: todo minúscula (ej: Keeppz -> keeppz)
+      if (snapshot.empty) {
+        const lowercasedUsername = decodedUsername.toLowerCase();
+        q = query(usersRef, where("user_name", "==", lowercasedUsername));
+        snapshot = await getDocs(q);
+      }
+
+      if (snapshot.empty) {
+        return {
+          error: "User not found",
+        };
+      }
+
+      data = snapshot.docs[0].data();
+      docId = snapshot.docs[0].id;
+      referencia = snapshot.docs[0].ref;
+      resolvedBy = 'username';
+    }
 
     let empresaData: Empresa | undefined = undefined;
     if (data.empresa_ref) {
@@ -76,7 +102,14 @@ export async function getUser(username: string): Promise<GetUserData> {
         console.error("Error al obtener datos de la empresa:", error);
       }
     }
-    return { ...data, referencia, empresa: empresaData };
+    return {
+      ...data,
+      referencia,
+      empresa: empresaData,
+      accessMode: data.accessMode || 'public',
+      docId,
+      resolvedBy,
+    };
   } catch (error) {
     console.error("Error fetching user data:", error);
     return {
@@ -170,4 +203,7 @@ export type UserData = {
     updated_at?: any;
     updated_by?: string;
   };
+  accessMode?: 'public' | 'private';
+  docId?: string;
+  resolvedBy?: 'id' | 'username';
 };

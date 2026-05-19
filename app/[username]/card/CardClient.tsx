@@ -14,20 +14,21 @@ const urbanist = Urbanist({
 interface CardClientProps {
   perfil: Perfil;
   username: string;
+  shareUrl: string;
 }
 
-function generateVCard(perfil: Perfil, username: string) {
+function generateVCard(perfil: Perfil, username: string, shareUrl: string) {
   const vcard = `BEGIN:VCARD
 VERSION:3.0
 FN:${perfil.title || username}
 TITLE:${perfil.subtitle || ""}
-URL:https://econecta.io/${username}
+URL:${shareUrl}
 PHOTO;VALUE=URI:${perfil.imagen || ""}
 END:VCARD`;
   return encodeURIComponent(vcard);
 }
 
-export default function CardClient({ perfil, username }: CardClientProps) {
+export default function CardClient({ perfil, username, shareUrl }: CardClientProps) {
   const {
     brandLogo,
     brandLogoPath,
@@ -52,11 +53,11 @@ export default function CardClient({ perfil, username }: CardClientProps) {
       "var(--font-urbanist)"
     : "var(--font-urbanist)";
 
-  const vCardData = generateVCard(perfil, username);
+  const vCardData = generateVCard(perfil, username, shareUrl);
 
   // Generar QR con logo de econecta (proporciones optimizadas)
   const qrCodeUrl = useQRWithLogo({
-    data: `https://econecta.io/${username}`,
+    data: shareUrl,
     logoUrl: "/Iso3.png",
     size: 300,
     logoWidth: 85,
@@ -300,7 +301,7 @@ export default function CardClient({ perfil, username }: CardClientProps) {
         <div className="flex flex-col w-full max-w-[340px] mx-auto gap-3 relative z-10">
           {/* Botón Compartir en WhatsApp */}
           {/* <a
-            href={`whatsapp://send?text=Visita mi tarjeta digital: https://econecta.io/${username}`}
+            href={`whatsapp://send?text=Visita mi tarjeta digital: ${shareUrl}`}
             style={{
               color: Button1TextColor,
               backgroundColor: Button1Color,
@@ -322,7 +323,7 @@ export default function CardClient({ perfil, username }: CardClientProps) {
 
           {/* Botón Ver Perfil */}
           <a
-            href={`https://econecta.io/${username}`}
+            href={shareUrl}
             style={{
               color: Button2TextColor,
               backgroundColor: Button2Color,

@@ -83,6 +83,21 @@ export default async function CardPage(props: CardProps) {
     );
   }
 
+  // Validación de acceso privado en la tarjeta también
+  const { accessMode, resolvedBy, docId } = userData as any;
+  if (accessMode === 'private' && resolvedBy === 'username') {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 gap-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-sm text-center space-y-4">
+          <h1 className="text-xl font-bold text-gray-800">Tarjeta Privada</h1>
+          <p className="text-gray-500 text-sm">
+            Esta tarjeta no está disponible de forma pública. Necesitas un enlace privado para acceder.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Redirect a custom domain si está configurado desde el superadmin
   if (userData.redirect?.enabled && userData.redirect?.url) {
     console.log(`[CardPage] Redirigiendo a custom domain configurado para ${username}: ${userData.redirect.url}`);
@@ -92,5 +107,15 @@ export default async function CardPage(props: CardProps) {
   console.log(`[CardPage] Renderizando tarjeta para ${username} localmente (sin redireccion)`);
   const perfil = userData.perfil;
 
-  return <CardClient perfil={perfil} username={username} />;
+  // Calcular la URL de compartir según la configuración
+  let shareUrl = `https://econecta.io/${username}`;
+  if (userData.redirect?.enabled && userData.redirect?.url) {
+    // Si tiene redirección activa, usar la URL de redirección como enlace de compartir
+    shareUrl = userData.redirect.url;
+  } else if (accessMode === 'private' && docId) {
+    // Si es privado sin redirección, usar el docID
+    shareUrl = `https://econecta.io/${docId}`;
+  }
+
+  return <CardClient perfil={perfil} username={username} shareUrl={shareUrl} />;
 }

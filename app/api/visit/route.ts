@@ -1,64 +1,9 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
-import { registerUserVisit, VisitGeoInfo } from "@/app/lib/visit";
+import { registerUserVisit } from "@/app/lib/visit";
+import { getGeoInfo, parseUserAgent } from "@/app/lib/geo";
 import { formatVenezuelaDate, getTimeDebugInfo } from "@/app/lib/timezone";
 
-const getGeoInfo = async (ip: string): Promise<VisitGeoInfo> => {
-  // Si es una IP local, usar información por defecto
-  if (
-    ip === "::1" ||
-    ip === "127.0.0.1" ||
-    ip.startsWith("192.168.") ||
-    ip.startsWith("10.")
-  ) {
-    return {
-      country: "Venezuela",
-      region: "Distrito Capital",
-      city: "Caracas",
-      isLocal: true,
-    };
-  }
-
-  try {
-    const response = await axios.get(
-      `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,timezone`,
-      {
-        timeout: 5000,
-      }
-    );
-
-    if (response.data.status === "success") {
-      return {
-        country: response.data.country || "Desconocido",
-        region: response.data.regionName || "Desconocido",
-        city: response.data.city || "Desconocido",
-        timezone: response.data.timezone || "America/Caracas",
-        isLocal: false,
-      };
-    } else {
-      throw new Error(response.data.message || "API error");
-    }
-  } catch (error) {
-    console.error("Error obteniendo información geográfica:", error);
-    // Fallback a Venezuela si no se puede obtener la información
-    return {
-      country: "Venezuela",
-      region: "Desconocido",
-      city: "Desconocido",
-      timezone: "America/Caracas",
-      isLocal: false,
-      error: true,
-    };
-  }
-};
-
 const getClientIp = async (req: Request): Promise<string> => {
-  // Convertir los headers de Request a un objeto simple
-  const headersObj: { [key: string]: string } = {};
-  req.headers.forEach((value, key) => {
-    headersObj[key] = value;
-  });
-
   // Prioridad de headers para obtener la IP real del cliente
   const possibleHeaders = [
     "x-forwarded-for",
@@ -72,7 +17,7 @@ const getClientIp = async (req: Request): Promise<string> => {
   ];
 
   for (const header of possibleHeaders) {
-    const value = headersObj[header];
+    const value = req.headers.get(header);
     if (value) {
       // x-forwarded-for puede contener múltiples IPs separadas por comas
       const ips = value.split(",").map((ip) => ip.trim());
@@ -108,9 +53,14 @@ export async function POST(request: Request) {
     const { username } = await request.json();
     const ip = await getClientIp(request);
     const geoInfo = await getGeoInfo(ip);
+    
+    // Parsear información del dispositivo desde el User-Agent
+    const userAgent = request.headers.get("user-agent");
+    const referrer = request.headers.get("referer") || request.headers.get("referrer") || undefined;
+    const deviceInfo = parseUserAgent(userAgent);
 
-    // Usar la utilidad compartida para registrar la visita
-    const result = await registerUserVisit(username, ip, geoInfo);
+    // Usar la utilidad compartida para registrar la visita con datos completos
+    const result = await registerUserVisit(username, ip, geoInfo, deviceInfo, referrer, "profile");
 
     if (!result.success) {
       return NextResponse.json(

@@ -11,6 +11,13 @@ export interface VisitGeoInfo {
   error?: boolean;
 }
 
+export interface VisitDeviceInfo {
+  device: string;
+  browser: string;
+  os: string;
+  userAgent?: string;
+}
+
 export interface VisitRegistrationResult {
   success: boolean;
   error?: string;
@@ -21,6 +28,7 @@ export interface VisitRegistrationResult {
 
 /**
  * Registra una visita para un usuario de forma case-insensitive
+ * Ahora incluye información de dispositivo, referrer, y fuente (redirect vs perfil)
  */
 export async function registerUserVisit(
   username: string, 
@@ -30,7 +38,10 @@ export async function registerUserVisit(
     region: "Desconocido",
     city: "Desconocido",
     isLocal: false
-  }
+  },
+  deviceInfo?: VisitDeviceInfo,
+  referrer?: string,
+  source: "profile" | "redirect" = "profile"
 ): Promise<VisitRegistrationResult> {
   try {
     if (!username) {
@@ -39,37 +50,55 @@ export async function registerUserVisit(
 
     const usersRef = collection(db, "users");
     const decodedUsername = decodeURIComponent(username);
-    
-    // Intento 1: match exacto
-    let q = query(usersRef, where("user_name", "==", decodedUsername));
-    let snapshot = await getDocs(q);
 
-    // Intento 2: primera letra mayúscula (ej: keeppz -> Keeppz)
-    if (snapshot.empty) {
-      const capitalizedUsername = decodedUsername.charAt(0).toUpperCase() + decodedUsername.slice(1);
-      q = query(usersRef, where("user_name", "==", capitalizedUsername));
-      snapshot = await getDocs(q);
+    let userDoc;
+
+    // Intento 0: búsqueda directa por Document ID (para accesos vía enlace privado)
+    try {
+      const { doc: docRef, getDoc } = await import("firebase/firestore");
+      const directDoc = await getDoc(docRef(db, "users", decodedUsername));
+      if (directDoc.exists()) {
+        userDoc = directDoc;
+      }
+    } catch (e) {
+      // ID inválido para Firestore, continuamos con búsqueda por username
     }
 
-    // Intento 3: todo minúscula (ej: Keeppz -> keeppz)
-    if (snapshot.empty) {
-      const lowercasedUsername = decodedUsername.toLowerCase();
-      q = query(usersRef, where("user_name", "==", lowercasedUsername));
-      snapshot = await getDocs(q);
-    }
+    // Si no se encontró por ID, buscar por username
+    if (!userDoc) {
+      // Intento 1: match exacto
+      let q = query(usersRef, where("user_name", "==", decodedUsername));
+      let snapshot = await getDocs(q);
 
-    if (snapshot.empty) {
-      console.error(`Usuario no encontrado al registrar visita: ${username}`);
-      return { success: false, error: "Usuario no encontrado" };
+      // Intento 2: primera letra mayúscula (ej: keeppz -> Keeppz)
+      if (snapshot.empty) {
+        const capitalizedUsername = decodedUsername.charAt(0).toUpperCase() + decodedUsername.slice(1);
+        q = query(usersRef, where("user_name", "==", capitalizedUsername));
+        snapshot = await getDocs(q);
+      }
+
+      // Intento 3: todo minúscula (ej: Keeppz -> keeppz)
+      if (snapshot.empty) {
+        const lowercasedUsername = decodedUsername.toLowerCase();
+        q = query(usersRef, where("user_name", "==", lowercasedUsername));
+        snapshot = await getDocs(q);
+      }
+
+      if (snapshot.empty) {
+        console.error(`Usuario no encontrado al registrar visita: ${username}`);
+        return { success: false, error: "Usuario no encontrado" };
+      }
+
+      userDoc = snapshot.docs[0];
     }
 
     // Crear fecha con zona horaria de Venezuela
     const venezuelaTime = getCurrentVenezuelaTime();
     const timeDebugInfo = getTimeDebugInfo();
 
-    // Referencia del usuario y agregar estadística
-    const userDoc = snapshot.docs[0];
-    await addDoc(collection(userDoc.ref, "statics"), {
+
+    // Construir el documento de visita con todos los datos disponibles
+    const visitData: Record<string, any> = {
       date: Timestamp.fromDate(venezuelaTime),
       dateUTC: Timestamp.now(),
       ip: ip,
@@ -81,7 +110,22 @@ export async function registerUserVisit(
       hasGeoError: geoInfo.error || false,
       serverTimezone: timeDebugInfo.serverTimezone,
       offsetMinutes: timeDebugInfo.offsetMinutes,
-    });
+      source: source, // "redirect" o "profile" — indica si fue una visita redirigida
+    };
+
+    // Agregar info de dispositivo si está disponible
+    if (deviceInfo) {
+      visitData.device = deviceInfo.device;
+      visitData.browser = deviceInfo.browser;
+      visitData.os = deviceInfo.os;
+    }
+
+    // Agregar referrer si está disponible
+    if (referrer) {
+      visitData.referrer = referrer;
+    }
+
+    await addDoc(collection(userDoc.ref, "statics"), visitData);
 
     return { 
       success: true, 

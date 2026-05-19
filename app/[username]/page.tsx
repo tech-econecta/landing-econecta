@@ -131,14 +131,14 @@ export default async function ProfilePage(props: ProfileProps) {
 
   // Validación de acceso privado: si el perfil es privado y se accedió por username público,
   // redirigimos automáticamente usando el docID para auto-corregir la URL y no bloquear las tarjetas físicas.
-  const { accessMode, resolvedBy, docId, redirect: redirectConfig } = response as any;
+  const { accessMode, resolvedBy, docId, redirect: privateRedirectConfig } = response as any;
   if (accessMode === 'private' && resolvedBy === 'username' && docId) {
     // Caso A: Si tiene redirección activa, redirigir de inmediato al dominio personalizado usando el docID privado
-    if (redirectConfig?.enabled && redirectConfig?.url) {
+    if (privateRedirectConfig?.enabled && privateRedirectConfig?.url) {
       console.log(`[Profile] Perfil privado accedido por username. Redirigiendo directo al dominio de destino con el ID privado.`);
       // Reemplazar la URL objetivo para que use el docID
       try {
-        const targetUrl = new URL(redirectConfig.url);
+        const targetUrl = new URL(privateRedirectConfig.url);
         const headersList = await headers();
         const customDomain = targetUrl.hostname;
         
@@ -148,15 +148,23 @@ export default async function ProfilePage(props: ProfileProps) {
         const geoInfo = await getGeoInfo(ip);
         const device = parseUserAgent(userAgent);
         
-        await registerUserVisit({
-          userId: docId,
+        await registerUserVisit(
+          docId,
           ip,
-          country: geoInfo.country,
-          city: geoInfo.city,
-          device: device.type,
-          browser: device.browser,
-          isRedirect: true
-        });
+          {
+            country: geoInfo.country || "Venezuela",
+            region: geoInfo.region || "Desconocido",
+            city: geoInfo.city || "Desconocido",
+            isLocal: geoInfo.isLocal || false
+          },
+          {
+            device: device.device || "Desktop",
+            browser: device.browser || "Chrome",
+            os: device.os || "Desconocido"
+          },
+          "",
+          "redirect"
+        );
 
         const finalRedirectUrl = `https://${customDomain}/${docId}`;
         console.log(`[Redirect] TRIGGERED (Private Username Fallback): Redirigiendo a ${finalRedirectUrl}`);

@@ -83,19 +83,26 @@ export default async function CardPage(props: CardProps) {
     );
   }
 
-  // Validación de acceso privado en la tarjeta también
+  // Validación de acceso privado en la tarjeta: si es privada y se accedió por username público,
+  // redirigimos automáticamente usando el docID para auto-corregir la URL y no bloquear al usuario.
   const { accessMode, resolvedBy, docId } = userData as any;
-  if (accessMode === 'private' && resolvedBy === 'username') {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 gap-4">
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-sm text-center space-y-4">
-          <h1 className="text-xl font-bold text-gray-800">Tarjeta Privada</h1>
-          <p className="text-gray-500 text-sm">
-            Esta tarjeta no está disponible de forma pública. Necesitas un enlace privado para acceder.
-          </p>
-        </div>
-      </div>
-    );
+  if (accessMode === 'private' && resolvedBy === 'username' && docId) {
+    // Caso A: Si tiene redirección activa, redirigir de inmediato al dominio de destino /card con el ID privado
+    if (userData.redirect?.enabled && userData.redirect?.url) {
+      try {
+        const targetUrl = new URL(userData.redirect.url);
+        const customDomain = targetUrl.hostname;
+        const finalRedirectUrl = `https://${customDomain}/${docId}/card`;
+        console.log(`[CardPage] Redirigiendo privado por username a custom domain card: ${finalRedirectUrl}`);
+        redirect(finalRedirectUrl);
+      } catch (err) {
+        console.error("Error resolviendo URL de redirección externa de tarjeta privada:", err);
+      }
+    }
+
+    // Caso B: Redirigir internamente a la versión de la tarjeta con ID privado
+    console.log(`[CardPage] Autocorrigiendo tarjeta privada a url segura: /${docId}/card`);
+    redirect(`/${docId}/card`);
   }
 
   // Redirect a custom domain si está configurado desde el superadmin

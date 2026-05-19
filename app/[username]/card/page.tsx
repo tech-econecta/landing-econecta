@@ -6,6 +6,8 @@ import { redirects } from "../page";
 import { redirect } from "next/navigation";
 import { getUser } from "../action-get.user";
 import CardClient from "./CardClient";
+import { headers } from "next/headers";
+
 
 type CardProps = {
   params: Promise<{ username: string }>;
@@ -107,8 +109,25 @@ export default async function CardPage(props: CardProps) {
 
   // Redirect a custom domain si está configurado desde el superadmin
   if (userData.redirect?.enabled && userData.redirect?.url) {
-    console.log(`[CardPage] Redirigiendo a custom domain configurado para ${username}: ${userData.redirect.url}`);
-    redirect(userData.redirect.url);
+    const headersList = await headers();
+    const currentHost = headersList.get("host")?.replace(/:\d+$/, "") || "";
+    
+    let shouldRedirect = true;
+    try {
+      const targetUrl = new URL(userData.redirect.url);
+      if (currentHost === targetUrl.host) {
+        console.log(`[CardPage] Ya estamos en el dominio de destino ${currentHost}. Mostrando tarjeta localmente sin redirigir al perfil.`);
+        shouldRedirect = false;
+      } else {
+        // Redirigir al dominio personalizado PERO a la ruta de la tarjeta (/card), no al perfil completo
+        const cleanPathname = targetUrl.pathname === "/" ? "" : targetUrl.pathname;
+        const finalRedirectUrl = `https://${targetUrl.host}${cleanPathname}/card`;
+        console.log(`[CardPage] Redirigiendo a la tarjeta en el dominio personalizado: ${finalRedirectUrl}`);
+        redirect(finalRedirectUrl);
+      }
+    } catch (e) {
+      console.error("Error al procesar redirección en tarjeta:", e);
+    }
   }
 
   console.log(`[CardPage] Renderizando tarjeta para ${username} localmente (sin redireccion)`);

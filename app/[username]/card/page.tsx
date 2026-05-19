@@ -91,14 +91,17 @@ export default async function CardPage(props: CardProps) {
   if (accessMode === 'private' && resolvedBy === 'username' && docId) {
     // Caso A: Si tiene redirección activa, redirigir de inmediato al dominio de destino /card con el ID privado
     if (userData.redirect?.enabled && userData.redirect?.url) {
+      let finalRedirectUrl = "";
       try {
         const targetUrl = new URL(userData.redirect.url);
         const customDomain = targetUrl.hostname;
-        const finalRedirectUrl = `https://${customDomain}/${docId}/card`;
-        console.log(`[CardPage] Redirigiendo privado por username a custom domain card: ${finalRedirectUrl}`);
-        redirect(finalRedirectUrl);
+        finalRedirectUrl = `https://${customDomain}/${docId}/card`;
       } catch (err) {
         console.error("Error resolviendo URL de redirección externa de tarjeta privada:", err);
+      }
+      if (finalRedirectUrl) {
+        console.log(`[CardPage] Redirigiendo privado por username a custom domain card: ${finalRedirectUrl}`);
+        redirect(finalRedirectUrl);
       }
     }
 
@@ -112,21 +115,25 @@ export default async function CardPage(props: CardProps) {
     const headersList = await headers();
     const currentHost = headersList.get("host")?.replace(/:\d+$/, "") || "";
     
-    let shouldRedirect = true;
+    let shouldRedirect = false;
+    let finalRedirectUrl = "";
     try {
       const targetUrl = new URL(userData.redirect.url);
       if (currentHost === targetUrl.host) {
         console.log(`[CardPage] Ya estamos en el dominio de destino ${currentHost}. Mostrando tarjeta localmente sin redirigir al perfil.`);
-        shouldRedirect = false;
       } else {
         // Redirigir al dominio personalizado PERO a la ruta de la tarjeta (/card), no al perfil completo
         const cleanPathname = targetUrl.pathname === "/" ? "" : targetUrl.pathname;
-        const finalRedirectUrl = `https://${targetUrl.host}${cleanPathname}/card`;
-        console.log(`[CardPage] Redirigiendo a la tarjeta en el dominio personalizado: ${finalRedirectUrl}`);
-        redirect(finalRedirectUrl);
+        finalRedirectUrl = `https://${targetUrl.host}${cleanPathname}/card`;
+        shouldRedirect = true;
       }
     } catch (e) {
       console.error("Error al procesar redirección en tarjeta:", e);
+    }
+
+    if (shouldRedirect && finalRedirectUrl) {
+      console.log(`[CardPage] Redirigiendo a la tarjeta en el dominio personalizado: ${finalRedirectUrl}`);
+      redirect(finalRedirectUrl);
     }
   }
 

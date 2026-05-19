@@ -5,7 +5,6 @@ import CardClient from "@/app/[username]/card/CardClient";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getUser } from "@/app/[username]/action-get.user";
-import ReplaceRedirect from "@/app/components/ReplaceRedirect";
 
 export const dynamic = "force-dynamic";
 
@@ -119,17 +118,14 @@ export default async function CustomDomainPage(props: CustomDomainProps) {
 
     console.log(`[CustomDomain] Usuario encontrado exitosamente: ${username}`);
 
-    // --- Lógica de Redirección ---
-    const redirectConfig = userData.redirect;
-    if (redirectConfig?.enabled && redirectConfig?.url) {
-      console.log(`[CustomDomain-Redirect] Redirigiendo a: ${redirectConfig.url}`);
-      return <ReplaceRedirect url={redirectConfig.url} />;
-    }
-    // ----------------------------
+    // NOTA: No aplicamos lógica de redirección aquí porque el usuario
+    // ya está en el dominio de destino (custom domain). La redirección
+    // solo aplica en econecta.io (manejada en page.tsx).
 
-    // 3. Calcular la URL de compartir según la configuración
+    // Calcular la URL de compartir según la configuración
     const { accessMode, docId } = userData as any;
-    let shareUrl = `https://econecta.io/${username}`;
+    const redirectConfig = userData.redirect;
+    let shareUrl = `https://${customDomain}/${slug[0]}`;
     if (redirectConfig?.enabled && redirectConfig?.url) {
       shareUrl = redirectConfig.url;
     } else if (accessMode === 'private' && docId) {

@@ -1,10 +1,10 @@
 import { headers } from "next/headers";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
-import CardClient from "@/app/[username]/card/CardClient";
 import { notFound } from "next/navigation";
-import { Metadata } from "next";
-import { getUser } from "@/app/[username]/action-get.user";
+import { Metadata, ResolvingMetadata } from "next";
+import ProfilePage, { generateMetadata as generateProfileMetadata } from "@/app/[username]/page";
+import CardPage, { generateMetadata as generateCardMetadata } from "@/app/[username]/card/page";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +12,27 @@ type CustomDomainProps = {
   params: Promise<{ slug: string[] }>;
 };
 
+// Función auxiliar para obtener el username/ID mapeado al dominio personalizado
+async function getResolvedUsername(customDomain: string, slug0: string) {
+  const domainsRef = collection(db, "custom_domains");
+  const domainQuery = query(
+    domainsRef,
+    where("domain", "==", customDomain),
+    where("enabled", "==", true)
+  );
+  const domainSnap = await getDocs(domainQuery);
+
+  if (domainSnap.empty) {
+    return null;
+  }
+
+  const { prefix } = domainSnap.docs[0].data();
+  return `${prefix || ""}${slug0}`;
+}
+
 export async function generateMetadata(
-  props: CustomDomainProps
+  props: CustomDomainProps,
+  parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { slug } = await props.params;
   const headersList = await headers();
@@ -24,43 +43,16 @@ export async function generateMetadata(
   }
 
   try {
-    const domainsRef = collection(db, "custom_domains");
-    const domainQuery = query(
-      domainsRef,
-      where("domain", "==", customDomain),
-      where("enabled", "==", true)
-    );
-    const domainSnap = await getDocs(domainQuery);
+    const username = await getResolvedUsername(customDomain, slug[0]);
+    if (!username) return { title: "Tarjeta Digital" };
 
-    if (domainSnap.empty) {
-      return { title: "Tarjeta Digital" };
+    // Si es la ruta /card
+    if (slug.length >= 2 && slug[1] === "card") {
+      return generateCardMetadata({ params: Promise.resolve({ username }) }, parent);
     }
 
-    const { prefix } = domainSnap.docs[0].data();
-    const username = `${prefix || ""}${slug[0]}`;
-
-    const userData = await getUser(username);
-
-    if (userData.error || !userData.perfil) {
-      return { title: "Tarjeta Digital" };
-    }
-
-    const perfil = userData.perfil;
-
-    return {
-      title: perfil.title || `${slug[0]} | Tarjeta Digital`,
-      description: perfil.subtitle || "Tarjeta digital profesional",
-      openGraph: {
-        title: perfil.title || `${slug[0]} | Tarjeta Digital`,
-        description: perfil.subtitle || "Tarjeta digital profesional",
-        images: [perfil.imagen || "/og-image.jpg"],
-        type: "website",
-      },
-      icons: {
-        icon: perfil.imagen || "/favicon.ico",
-        apple: perfil.imagen || "/favicon.ico",
-      },
-    };
+    // Por defecto, perfil completo
+    return generateProfileMetadata({ params: Promise.resolve({ username }) }, parent);
   } catch (error) {
     console.error("Error generating custom domain metadata:", error);
     return { title: "Tarjeta Digital" };
@@ -70,7 +62,6 @@ export async function generateMetadata(
 export default async function CustomDomainPage(props: CustomDomainProps) {
   const { slug } = await props.params;
   const headersList = await headers();
-  // El middleware debería setear x-custom-domain, pero si no, probamos con el host header
   const customDomain = headersList.get("x-custom-domain") || headersList.get("host")?.replace(/:\d+$/, "");
 
   console.log(`[CustomDomain] Solicitud recibida: host=${customDomain}, slug=${slug?.join("/")}`);
@@ -81,60 +72,25 @@ export default async function CustomDomainPage(props: CustomDomainProps) {
   }
 
   try {
-    // 1. Buscar el dominio custom en Firestore
-    const domainsRef = collection(db, "custom_domains");
-    const domainQuery = query(
-      domainsRef,
-      where("domain", "==", customDomain),
-      where("enabled", "==", true)
-    );
-    
-    console.log(`[CustomDomain] Consultando Firestore para el dominio: ${customDomain}`);
-    const domainSnap = await getDocs(domainQuery);
-
-    if (domainSnap.empty) {
-      console.error(`[CustomDomain] El dominio "${customDomain}" no está registrado o está desactivado en Firestore.`);
+    const username = await getResolvedUsername(customDomain, slug[0]);
+    if (!username) {
+      console.error(`[CustomDomain] El dominio "${customDomain}" no está registrado o está desactivado.`);
       return notFound();
     }
 
-    const domainData = domainSnap.docs[0].data();
-    const prefix = domainData.prefix || "";
-    const username = `${prefix}${slug[0]}`;
-    
-    console.log(`[CustomDomain] Dominio encontrado. Prefix="${prefix}". Username a buscar: "${username}"`);
+    console.log(`[CustomDomain] Dominio encontrado. Username mapeado: "${username}"`);
 
-    // 2. Buscar el usuario usando la lógica compartida (soporta case-insensitive)
-    const userData = await getUser(username);
-
-    if (userData.error) {
-      console.error(`[CustomDomain] Error al buscar usuario "${username}": ${userData.error}`);
-      return notFound();
+    // 1. Delegar a la vista de Tarjeta (Card)
+    if (slug.length >= 2 && slug[1] === "card") {
+      console.log(`[CustomDomain] Delegando a CardPage para: ${username}`);
+      return <CardPage params={Promise.resolve({ username })} />;
     }
 
-    if (!userData.perfil) {
-      console.error(`[CustomDomain] El usuario "${username}" no tiene un perfil configurado.`);
-      return notFound();
-    }
-
-    console.log(`[CustomDomain] Usuario encontrado exitosamente: ${username}`);
-
-    // NOTA: No aplicamos lógica de redirección aquí porque el usuario
-    // ya está en el dominio de destino (custom domain). La redirección
-    // solo aplica en econecta.io (manejada en page.tsx).
-
-    // Calcular la URL de compartir según la configuración
-    const { accessMode, docId } = userData as any;
-    const redirectConfig = userData.redirect;
-    let shareUrl = `https://${customDomain}/${slug[0]}`;
-    if (redirectConfig?.enabled && redirectConfig?.url) {
-      shareUrl = redirectConfig.url;
-    } else if (accessMode === 'private' && docId) {
-      shareUrl = `https://econecta.io/${docId}`;
-    }
-
-    return <CardClient perfil={userData.perfil} username={username} shareUrl={shareUrl} />;
+    // 2. Delegar a la vista de Perfil Completo
+    console.log(`[CustomDomain] Delegando a ProfilePage para: ${username}`);
+    return <ProfilePage params={Promise.resolve({ username })} />;
   } catch (error) {
-    console.error("[CustomDomain] Error crítico en el proceso de resolución:", error);
+    console.error("[CustomDomain] Error crítico delegando la petición:", error);
     return notFound();
   }
 }

@@ -127,8 +127,16 @@ export default async function CustomDomainPage(props: CustomDomainProps) {
     }
     // ----------------------------
 
-    // 3. Renderizar la tarjeta
-    return <CardClient perfil={userData.perfil} username={username} />;
+    // 3. Calcular la URL de compartir según la configuración
+    const { accessMode, docId } = userData as any;
+    let shareUrl = `https://econecta.io/${username}`;
+    if (redirectConfig?.enabled && redirectConfig?.url) {
+      shareUrl = redirectConfig.url;
+    } else if (accessMode === 'private' && docId) {
+      shareUrl = `https://econecta.io/${docId}`;
+    }
+
+    return <CardClient perfil={userData.perfil} username={username} shareUrl={shareUrl} />;
   } catch (error) {
     console.error("[CustomDomain] Error crítico en el proceso de resolución:", error);
     return notFound();

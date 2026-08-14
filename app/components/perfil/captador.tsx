@@ -17,7 +17,7 @@ type CaptadorCampo = {
   nombre: string;
   label: string;
   placeholder?: string;
-  type: "input" | "DatePicker" | "InputNumber" | "Switch" | "Radio";
+  type: "input" | "email" | "number" | "textarea" | "date" | "DatePicker" | "InputNumber" | "Switch" | "Radio";
 };
 
 type CaptadorProps = {
@@ -115,6 +115,29 @@ const Captador: React.FC<CaptadorProps> = ({
                   <Input placeholder={campo.placeholder} />
                 </Form.Item>
               );
+            case "email":
+              return (
+                <Form.Item
+                  key={campo.nombre}
+                  name={campo.nombre}
+                  label={campo.label}
+                  rules={[{ required: true, type: "email", message: "Correo inválido" }]}
+                >
+                  <Input type="email" placeholder={campo.placeholder} />
+                </Form.Item>
+              );
+            case "textarea":
+              return (
+                <Form.Item
+                  key={campo.nombre}
+                  name={campo.nombre}
+                  label={campo.label}
+                  rules={[{ required: true }]}
+                >
+                  <Input.TextArea placeholder={campo.placeholder} rows={3} />
+                </Form.Item>
+              );
+            case "date":
             case "DatePicker":
               return (
                 <Form.Item
@@ -123,9 +146,10 @@ const Captador: React.FC<CaptadorProps> = ({
                   label={campo.label}
                   rules={[{ required: true }]}
                 >
-                  <DatePicker style={{ width: "100%" }} />
+                  <DatePicker style={{ width: "100%" }} placeholder={campo.placeholder} />
                 </Form.Item>
               );
+            case "number":
             case "InputNumber":
               return (
                 <Form.Item
@@ -134,7 +158,7 @@ const Captador: React.FC<CaptadorProps> = ({
                   label={campo.label}
                   rules={[{ required: true }]}
                 >
-                  <InputNumber style={{ width: "100%" }} />
+                  <InputNumber style={{ width: "100%" }} placeholder={campo.placeholder} />
                 </Form.Item>
               );
             case "Switch":

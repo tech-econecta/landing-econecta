@@ -359,7 +359,7 @@ export default async function ProfilePage(props: ProfileProps) {
           {title}
         </h1>
         <h2
-          className="text-center font-semibold"
+          className="text-center font-semibold whitespace-pre-wrap"
           style={{
             fontSize: `${subtitle_size}px`,
             fontFamily,

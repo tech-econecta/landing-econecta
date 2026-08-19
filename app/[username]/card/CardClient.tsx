@@ -277,7 +277,7 @@ export default function CardClient({ perfil, username, shareUrl }: CardClientPro
           {subtitle && (
             <h2
               style={{ color: textColor }}
-              className="text-base font-medium mb-6 opacity-80"
+              className="text-base font-medium mb-6 opacity-80 whitespace-pre-wrap"
             >
               {subtitle}
             </h2>

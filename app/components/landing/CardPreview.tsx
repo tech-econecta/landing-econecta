@@ -128,7 +128,7 @@ export default function CardPreview({ perfil, username }: CardPreviewProps) {
           {subtitle && (
             <h2
               style={{ color: textColor }}
-              className="text-base font-medium mb-6 opacity-80"
+              className="text-base font-medium mb-6 opacity-80 whitespace-pre-wrap"
             >
               {subtitle}
             </h2>

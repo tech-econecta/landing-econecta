@@ -22,10 +22,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // No interceptar assets estáticos
+  // No interceptar assets estáticos ni rutas de verificación o API
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
+    pathname.startsWith("/verify") ||
     pathname.includes(".")
   ) {
     return NextResponse.next();

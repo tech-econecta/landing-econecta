@@ -20,6 +20,7 @@ export type Button = {
   border_radius?: number; // Opcional
   width?: number; // Opcional
   height?: number; // Opcional
+  icon_size?: number; // Opcional: Tamaño en px del icono/imagen
   action_type?: ButtonActionType | "verified_signature";
   modal_content?: ModalContent;
   verified_signature?: VerifiedSignatureContent;
@@ -133,11 +134,13 @@ const Buttons: React.FC<ButtonsProps> = ({ buttonsData }) => {
                   src={button.path_icon}
                   alt={button.label}
                   style={{
-                    maxWidth: "80%", // Escala el ícono al 70% del ancho del botón
-                    maxHeight: "80%", // Escala el ícono al 70% del alto del botón
+                    width: button.icon_size ? `${button.icon_size}px` : (button.width ? `${button.width}px` : "100px"),
+                    height: button.icon_size ? `${button.icon_size}px` : (button.height ? `${button.height}px` : "100px"),
+                    maxWidth: "100%",
+                    maxHeight: "100%",
                     borderRadius: `${button.border_radius ?? 10}px`,
+                    objectFit: "contain",
                   }}
-                  className="w-[100px]"
                 />
               )}
               <p

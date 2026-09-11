@@ -118,16 +118,7 @@ export async function getUser(username: string): Promise<GetUserData> {
   }
 }
 
-type Button = {
-  label_color: string;
-  color: string;
-  url: string;
-  border_radius: number;
-  path_icon: string;
-  width: number;
-  height: number;
-  label: string;
-};
+import type { Button } from "../components/perfil/buttons";
 
 type Captador = {
   visible?: boolean;

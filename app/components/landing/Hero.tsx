@@ -1,5 +1,5 @@
 import CardPreview from "./CardPreview";
-import { UserData } from "@/app/[username]/action-get.user";
+import { UserData, getUser } from "@/app/[username]/action-get.user";
 import Navbar from "./Navbar";
 
 async function getHeroUserData(): Promise<{
@@ -10,19 +10,15 @@ async function getHeroUserData(): Promise<{
   const heroUsername = process.env.NEXT_PUBLIC_HERO_USERNAME || "econecta";
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-    const response = await fetch(`${apiUrl}/api/users/${heroUsername}`, {
-      next: { revalidate: 3600 }, // Revalidar cada hora
-    });
+    // Lectura directa a Firestore: evita pedir la API propia por HTTP
+    // (fallaba con HTML cuando localhost:3000 no era esta app)
+    const userData = await getUser(heroUsername);
 
-    if (!response.ok) {
-      console.error(
-        `Error fetching hero user data: ${response.status} ${response.statusText}`
-      );
+    if (userData.error || !userData.perfil) {
+      console.error(`Error fetching hero user data: ${userData.error ?? "sin perfil"}`);
       return null;
     }
 
-    const userData = (await response.json()) as UserData;
     return {
       perfil: userData.perfil,
       username: heroUsername,

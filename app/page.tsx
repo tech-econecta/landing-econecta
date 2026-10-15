@@ -12,6 +12,9 @@ const urbanist = Urbanist({
   weight: ["400", "500", "600", "700"],
 });
 
+// Revalidar cada hora (datos del perfil de ejemplo del Hero)
+export const revalidate = 3600;
+
 export default function Home() {
   return (
     <section className={urbanist.className}>

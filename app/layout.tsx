@@ -9,6 +9,8 @@ const urbanist = Urbanist({
 });
 
 export const metadata: Metadata = {
+  // Base para URLs absolutas de OG/Twitter (sin esto Next usa http://localhost:3000)
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://econecta.io"),
   title: "Econecta | Tarjetas Digitales NFC en Venezuela",
   description:
     "Moderniza tu networking con tarjetas digitales NFC. Comparte tu información profesional y redes sociales con un solo toque. Solución digital para empresas venezolanas.",

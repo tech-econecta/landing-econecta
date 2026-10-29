@@ -39,6 +39,10 @@ export default function CardClient({ perfil, username, shareUrl }: CardClientPro
     customFontUrl,
   } = perfil;
 
+  // Si no hay foto de perfil, se usa el logo en su lugar
+  const photo = imagen || brandLogoPath;
+  const logoAsPhoto = !imagen && !!brandLogoPath;
+
   const {
     textColor = "#000000",
     cardColor = "#ffffff",
@@ -244,7 +248,7 @@ export default function CardClient({ perfil, username, shareUrl }: CardClientPro
           className="card-entrance card-glassmorphism rounded-[20px] p-6 w-full max-w-[340px] shadow-2xl text-center mb-5 flex flex-col items-center border border-white/20 relative z-10"
         >
           {/* Logo de marca con efecto shimmer */}
-          {brandLogo && brandLogoPath && (
+          {brandLogo && brandLogoPath && !logoAsPhoto && (
             <div className="logo-shimmer w-full mb-5">
               <img
                 src={brandLogoPath}
@@ -255,12 +259,14 @@ export default function CardClient({ perfil, username, shareUrl }: CardClientPro
           )}
 
           {/* Foto de usuario con gradiente animado */}
-          {imagen && (
+          {photo && (
             <div className="profile-img-wrapper mb-5">
               <img
-                src={imagen}
-                alt="User Photo"
-                className="w-[120px] h-[120px] object-cover rounded-full"
+                src={photo}
+                alt={logoAsPhoto ? "Logo" : "User Photo"}
+                className={`w-[120px] h-[120px] rounded-full ${
+                  logoAsPhoto ? "object-contain bg-white p-2" : "object-cover"
+                }`}
               />
             </div>
           )}

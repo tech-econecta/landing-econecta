@@ -40,9 +40,9 @@ export async function GET(
     }
 
     const { perfil } = response;
-    const { title, subtitle, imagen, background_color } = perfil;
+    const { title, subtitle, imagen, brandLogoPath, background_color } = perfil;
 
-    const iconUrl = imagen || "/favicon.ico";
+    const iconUrl = imagen || brandLogoPath || "/favicon.ico";
     const themeColor = background_color || "#ffffff";
     const backgroundColor = background_color || "#ffffff";
 

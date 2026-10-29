@@ -33,17 +33,23 @@ export async function generateMetadata(
     }
 
     const perfil = userData.perfil;
-    const favicon = perfil.imagen || defaultMetaData.icons?.icon;
+    const image = perfil.imagen || perfil.brandLogoPath;
+    const favicon = image || defaultMetaData.icons?.icon;
+    const title = perfil.title || `${username} | Tarjeta Digital`;
 
     return {
       title: `${username} | Tarjeta Digital`,
+      // El canonical del layout (econecta.io) hace que WhatsApp/Facebook muestren el home en la vista previa
+      alternates: { canonical: null },
       openGraph: {
-        images: perfil.imagen || defaultMetaData.openGraph?.images,
+        title,
+        description: perfil.subtitle || "Tarjeta digital en Econecta",
+        images: image || defaultMetaData.openGraph?.images,
         type: "website",
       },
       icons: {
         icon: favicon,
-        apple: perfil.imagen || defaultMetaData.icons?.icon,
+        apple: image || defaultMetaData.icons?.icon,
       },
     };
   } catch (error) {

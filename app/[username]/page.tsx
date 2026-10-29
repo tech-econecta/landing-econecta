@@ -43,17 +43,19 @@ export async function generateMetadata(
 
     const { perfil = {} } = (response || {}) as any;
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://econecta.io";
+    const image = perfil?.imagen || perfil?.brandLogoPath;
 
     return {
       title: perfil?.title || `${username} | Perfil Digital`,
       description: perfil?.subtitle || "Perfil digital profesional en Econecta",
       manifest: `/${username}/manifest`,
+      // El canonical del layout (econecta.io) hace que WhatsApp/Facebook muestren el home en la vista previa
+      alternates: { canonical: null },
       openGraph: {
         title: perfil?.title || `${username} | Perfil Digital`,
         description:
           perfil?.subtitle || "Perfil digital profesional en Econecta",
-        images: [perfil?.imagen || "/og-image.jpg"],
+        images: [image || "/og-image.jpg"],
         type: "profile",
       },
       twitter: {
@@ -61,16 +63,16 @@ export async function generateMetadata(
         title: perfil?.title || `${username} | Perfil Digital`,
         description:
           perfil?.subtitle || "Perfil digital profesional en Econecta",
-        images: [perfil?.imagen || "/og-image.jpg"],
+        images: [image || "/og-image.jpg"],
       },
       icons: [
         {
           rel: "icon",
-          url: perfil?.imagen || "/favicon.ico",
+          url: image || "/favicon.ico",
         },
         {
           rel: "apple-touch-icon",
-          url: perfil?.imagen || "/favicon.ico",
+          url: image || "/favicon.ico",
         },
       ],
       other: {
@@ -252,6 +254,10 @@ export default async function ProfilePage(props: ProfileProps) {
       buttons,
     } = perfil || {};
 
+    // Si no hay foto de perfil, se usa el logo en su lugar
+    const photo = imagen || brandLogoPath;
+    const logoAsPhoto = !imagen && !!brandLogoPath;
+
     // Determina el fondo (imagen o color)
     const backgroundStyle = background_path
       ? {
@@ -326,21 +332,22 @@ export default async function ProfilePage(props: ProfileProps) {
         <VisitTracker username={username} />
         {customFontUrl && <style>{`@import url('${customFontUrl}')`}</style>}
         {/* Logo de marca */}
-        {brandLogoPath && (
+        {brandLogoPath && !logoAsPhoto && (
           <div className="p-3">
             <img src={brandLogoPath} alt="Brand Logo" className="h-24 w-auto" />
           </div>
         )}
-        {imagen && (
+        {photo && (
           <div className="p-2">
             <img
-              src={imagen}
-              alt="User"
+              src={photo}
+              alt={logoAsPhoto ? "Logo" : "User"}
               className="rounded-full"
               style={{
                 width: `${image_size}px`,
                 height: `${image_size}px`,
-                objectFit: "cover",
+                objectFit: logoAsPhoto ? "contain" : "cover",
+                ...(logoAsPhoto && { backgroundColor: "#ffffff", padding: "8px" }),
               }}
             />
           </div>

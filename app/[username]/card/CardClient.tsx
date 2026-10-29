@@ -39,9 +39,9 @@ export default function CardClient({ perfil, username, shareUrl }: CardClientPro
     customFontUrl,
   } = perfil;
 
-  // Si no hay foto de perfil, se usa el logo en su lugar
-  const photo = imagen || brandLogoPath;
-  const logoAsPhoto = !imagen && !!brandLogoPath;
+  // Si no hay foto de perfil y el logo de arriba está desactivado, se usa el logo en su lugar
+  const logoAsPhoto = !imagen && !!brandLogoPath && !brandLogo;
+  const photo = logoAsPhoto ? brandLogoPath : imagen;
 
   const {
     textColor = "#000000",

@@ -44,7 +44,8 @@ export async function generateMetadata(
       openGraph: {
         title,
         description: perfil.subtitle || "Tarjeta digital en Econecta",
-        images: image || defaultMetaData.openGraph?.images,
+        // Imagen OG compuesta en 1200x630 para que WhatsApp/Facebook no recorten el logo
+        images: image ? `/${username}/og` : defaultMetaData.openGraph?.images,
         type: "website",
       },
       icons: {

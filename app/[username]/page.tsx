@@ -44,6 +44,8 @@ export async function generateMetadata(
     const { perfil = {} } = (response || {}) as any;
 
     const image = perfil?.imagen || perfil?.brandLogoPath;
+    // Imagen OG compuesta en 1200x630 para que WhatsApp/Facebook no recorten el logo
+    const ogImage = image ? `/${username}/og` : "/og-image.jpg";
 
     return {
       title: perfil?.title || `${username} | Perfil Digital`,
@@ -55,7 +57,7 @@ export async function generateMetadata(
         title: perfil?.title || `${username} | Perfil Digital`,
         description:
           perfil?.subtitle || "Perfil digital profesional en Econecta",
-        images: [image || "/og-image.jpg"],
+        images: [ogImage],
         type: "profile",
       },
       twitter: {
@@ -63,7 +65,7 @@ export async function generateMetadata(
         title: perfil?.title || `${username} | Perfil Digital`,
         description:
           perfil?.subtitle || "Perfil digital profesional en Econecta",
-        images: [image || "/og-image.jpg"],
+        images: [ogImage],
       },
       icons: [
         {
@@ -254,10 +256,6 @@ export default async function ProfilePage(props: ProfileProps) {
       buttons,
     } = perfil || {};
 
-    // Si no hay foto de perfil, se usa el logo en su lugar
-    const photo = imagen || brandLogoPath;
-    const logoAsPhoto = !imagen && !!brandLogoPath;
-
     // Determina el fondo (imagen o color)
     const backgroundStyle = background_path
       ? {
@@ -332,22 +330,21 @@ export default async function ProfilePage(props: ProfileProps) {
         <VisitTracker username={username} />
         {customFontUrl && <style>{`@import url('${customFontUrl}')`}</style>}
         {/* Logo de marca */}
-        {brandLogoPath && !logoAsPhoto && (
+        {brandLogoPath && (
           <div className="p-3">
             <img src={brandLogoPath} alt="Brand Logo" className="h-24 w-auto" />
           </div>
         )}
-        {photo && (
+        {imagen && (
           <div className="p-2">
             <img
-              src={photo}
-              alt={logoAsPhoto ? "Logo" : "User"}
+              src={imagen}
+              alt="User"
               className="rounded-full"
               style={{
                 width: `${image_size}px`,
                 height: `${image_size}px`,
-                objectFit: logoAsPhoto ? "contain" : "cover",
-                ...(logoAsPhoto && { backgroundColor: "#ffffff", padding: "8px" }),
+                objectFit: "cover",
               }}
             />
           </div>

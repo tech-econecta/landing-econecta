@@ -39,13 +39,14 @@ export async function GET(
           }}
         >
           {isLogo ? (
-            <img src={dataUrl} alt="" width={1000} height={450} style={{ objectFit: "contain" }} />
+            // WhatsApp recorta un cuadrado central (630x630): el logo debe caber ahí con margen
+            <img src={dataUrl} alt="" width={500} height={380} style={{ objectFit: "contain" }} />
           ) : (
             <img
               src={dataUrl}
               alt=""
-              width={460}
-              height={460}
+              width={440}
+              height={440}
               style={{ objectFit: "cover", borderRadius: "50%" }}
             />
           )}
